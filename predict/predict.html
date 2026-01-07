@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Prediction Arena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-image: url('a.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            margin: 0;
+            font-family: sans-serif;
+            overflow-x: hidden;
+        }
+
+        .score-capsule {
+            background: linear-gradient(to right, #911a1d, #b91c1c);
+            border-bottom-right-radius: 50px;
+            border-top-left-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border-bottom: 2px solid #ef4444;
+        }
+
+        .mascot-container {
+            position: fixed;
+            bottom: 5px;
+            right: 10px;
+            width: 220px;
+            z-index: 9999; 
+            pointer-events: none; 
+        }
+
+        .mascot-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            z-index: 10000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="notification" class="bg-yellow-500 text-black font-bold shadow-2xl"></div>
+
+    <header class="w-full flex justify-center items-center py-4 bg-transparent">
+        <img src="b.png" alt="Header Logos" style="width: 40%;" class="h-auto block">
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6 relative mt-[-40px]">
+        
+        <!-- Score Section -->
+        <div class="flex justify-center mb-10">
+            <div class="score-capsule flex items-center justify-between px-12 py-0 w-full max-w-[850px]" 
+                 style="background-color: #b11f24; border-top-right-radius: 65px; border-bottom-right-radius: 0; border-top-left-radius: 4px; border-bottom-left-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);">
+                
+                <div class="flex items-center gap-5">
+                    <span style="font-family: 'League Spartan', sans-serif; font-weight: 900; color: white; text-transform: uppercase; font-size: 1.875rem; letter-spacing: -0.05em;">Morocco</span>
+                    <div style="background-color: white; padding: 2px; display: flex; align-items: center; justify-content: center; width: 85px; height: 50px; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);">
+                        <img src="https://flagcdn.com/w160/ma.png" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);" alt="Maroc">
+                    </div> 
+                </div>
+                
+                <div class="flex items-center gap-4" style="font-family: 'League Spartan', sans-serif; font-weight: 900; color: white; font-size: 3.75rem;">
+                    <span id="avgA">0</span>
+                    <span style="opacity: 0.6; font-size: 2rem; margin-top: 4px;">-</span>
+                    <span id="avgB">0</span>
+                </div>
+
+                <div class="flex items-center gap-5">
+                    <div style="background-color: white; padding: 2px; display: flex; align-items: center; justify-content: center; width: 85px; height: 50px; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);">
+                        <img src="https://flagcdn.com/w160/cm.png" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);" alt="Cameroon">
+                    </div>
+                    <span style="font-family: 'League Spartan', sans-serif; font-weight: 900; color: white; text-transform: uppercase; font-size: 1.875rem; letter-spacing: -0.05em;">Cameroon</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 relative z-20">
+            <section class="bg-red-900/30 p-8 rounded-2xl border border-white/10 backdrop-blur-md">
+                <h2 class="text-2xl font-bold mb-6 text-yellow-500">Enter Your Pronostic</h2>
+                <div class="space-y-4">
+                    <input type="text" id="userName" placeholder="Your Name" 
+                           class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 focus:outline-none transition-colors">
+                    
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="block text-xs mb-1 text-gray-400 uppercase font-bold">MAR Score</label>
+                            <input type="number" id="scoreA" class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 outline-none" value="0" min="0">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs mb-1 text-gray-400 uppercase font-bold">CAM Score</label>
+                            <input type="number" id="scoreB" class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 outline-none" value="0" min="0">
+                        </div>
+                    </div>
+
+                    <button onclick="addPrediction()" class="w-full py-4 bg-[#d48c00] hover:bg-yellow-500 text-black font-black rounded-lg transition-all uppercase mt-4 shadow-lg active:scale-95">
+                        Submit Prediction
+                    </button>
+                </div>
+            </section>
+
+            <section class="bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                <h2 class="text-xl font-bold mb-4 text-yellow-500">Who is Near to Win?</h2>
+                <canvas id="accuracyChart" height="200"></canvas>
+            </section>
+        </div>
+
+        <section class="mt-12 mb-20">
+            <h2 class="text-2xl font-bold mb-6 text-center text-white/90">Current Leaderboard</h2>
+            <div id="leaderboard" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            </div>
+        </section>
+
+    </main>
+
+    <div class="mascot-container">
+        <img src="c.png" alt="Mascot" onerror="this.style.display='none'">
+    </div>
+
+    <script>
+    const predictions = [];
+    // Initial state set to 0-0 until data is entered
+    let currentAverageA = 0;
+    let currentAverageB = 0;
+
+    // --- CHART SETUP ---
+    const ctx = document.getElementById('accuracyChart').getContext('2d');
+    const accuracyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Start', '15\'', '30\'', '45\'', 'Now'],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            scales: { 
+                y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
+            },
+            plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } }
+        }
+    });
+
+    function showToast(msg) {
+        const toast = document.getElementById('notification');
+        toast.innerText = msg;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    function calculateAccuracy(predA, predB) {
+        const diff = Math.abs(predA - currentAverageA) + Math.abs(predB - currentAverageB);
+        return Math.max(0, 100 - (diff * 20));
+    }
+
+    function addPrediction() {
+        const nameInput = document.getElementById('userName');
+        const name = nameInput.value.trim();
+        const sA = parseInt(document.getElementById('scoreA').value) || 0;
+        const sB = parseInt(document.getElementById('scoreB').value) || 0;
+
+        if (!name) return showToast("Please enter your name!");
+
+        // Add to list
+        predictions.push({ name, sA, sB, accuracy: 0 });
+        
+        // Update the "sum and divided" logic in the background
+        updateAverages();
+        
+        nameInput.value = ''; 
+        showToast(`Prediction added!`);
+    }
+
+    function updateAverages() {
+        const count = predictions.length;
+        const avgAElem = document.getElementById('avgA');
+        const avgBElem = document.getElementById('avgB');
+
+        if (count > 0) {
+            const sumA = predictions.reduce((sum, p) => sum + p.sA, 0);
+            const sumB = predictions.reduce((sum, p) => sum + p.sB, 0);
+
+            currentAverageA = Math.round(sumA / count);
+            currentAverageB = Math.round(sumB / count);
+
+            // Update UI
+            avgAElem.innerText = currentAverageA;
+            avgBElem.innerText = currentAverageB;
+        }
+
+        // Refresh all rankings based on new average
+        updateLeaderboardUI();
+        
+        // Add last person to chart
+        const last = predictions[predictions.length - 1];
+        if (last) {
+            updateChart(last.name, calculateAccuracy(last.sA, last.sB));
+        }
+    }
+
+    function updateLeaderboardUI() {
+        const container = document.getElementById('leaderboard');
+        container.innerHTML = ''; 
+
+        // Re-calculate accuracy for everyone against the NEW average
+        predictions.forEach(p => {
+            p.accuracy = calculateAccuracy(p.sA, p.sB);
+        });
+
+        const sorted = [...predictions].sort((a, b) => b.accuracy - a.accuracy);
+
+        sorted.forEach(p => {
+            const card = document.createElement('div');
+            card.className = "bg-green-900/80 p-4 rounded-xl border-t-4 border-yellow-500 text-center shadow-xl backdrop-blur-sm transform transition hover:scale-105";      
+            card.innerHTML = `
+                <div class="text-xs font-bold text-yellow-500 uppercase truncate px-2">${p.name}</div>
+                <div class="text-2xl font-black">${p.sA} - ${p.sB}</div>
+                <div class="text-[10px] text-gray-300 mt-1">${p.accuracy}% Match</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function updateChart(name, acc) {
+        const color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        accuracyChart.data.datasets.push({
+            label: name,
+            data: [40, 55, 45, 60, acc],
+            borderColor: color,
+            backgroundColor: color,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 3
+        });
+        accuracyChart.update();
+    }
+</script>
+</body>
+</html>

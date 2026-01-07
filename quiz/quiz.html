@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFCON MOROCCO QUIZ CMC</title>
+    <style>
+        :root { 
+            --morocco-red: #c1272d; 
+            --morocco-green: #006233; 
+            --gold: #ffcc00; 
+            --hud-height: 120px;
+            /* Precise calculation based on original dimensions:
+               y.png = 1330px, x.png = 4643px. Total = 5973px.
+               Sidebar % = (1330 / 5973) * 100 ≈ 22.2668%
+               Main % = (4643 / 5973) * 100 ≈ 77.7332%
+            */
+            --sidebar-width: 22.2668%;
+            --main-width: 77.7332%;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #820001;
+            color: white; 
+            margin: 0; 
+            padding: 0;
+            height: 100vh; 
+            width: 100vw;
+            display: flex;          
+            flex-direction: row; 
+            overflow: hidden; 
+        }
+
+        /* Sidebar: Uses y.png anchored to the top */
+        #sidebar { 
+            width: var(--sidebar-width); 
+            height: 100%;
+            /* Half-black transparent overlay + y.png background */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('y.png');
+            background-size: cover; 
+            background-position: center top; 
+            background-repeat: no-repeat;
+            padding: 20px; 
+            /* Solid yellow line divider */
+            border-right: 4px solid var(--gold); 
+            display: flex; 
+            flex-direction: column;
+            z-index: 10; 
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        /* Main Container: Uses x.png anchored to the top */
+        #main-container { 
+            width: var(--main-width);
+            height: 100%;
+            background-image: url('x.png');
+            background-size: cover;
+            background-position: center top; 
+            background-repeat: no-repeat;
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            z-index: 5;
+        }
+
+        /* Game Active States */
+        body.game-active #sidebar { display: none; }
+        body.game-active #main-container { 
+            width: 100vw; 
+            background-image: url('d.png');
+            background-size: cover;
+            background-position: center top;
+        }
+
+        #leaderboard-list { list-style: none; padding: 0; }
+        
+        #leaderboard-list li { 
+            background: url('c.png') no-repeat center center;
+            background-size: 100% 100%; 
+            margin-bottom: 8px; 
+            padding: 15px 35px 15px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        #hud { 
+            height: var(--hud-height); width: 100%; display: none; 
+            justify-content: space-between; align-items: center; padding: 0 40px;
+            box-sizing: border-box; background: rgba(0,0,0,0.5); border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        #score-box { font-size: 3rem; font-weight: bold; color: var(--gold); }
+
+        #inventory { display: flex; gap: 10px; }
+        
+        .inv-slot { 
+            width: 55px; 
+            height: 78px; 
+            border: 2px solid rgba(255,255,255,0.3); 
+            border-radius: 6px; 
+            opacity: 0.3; 
+            transition: all 0.5s ease; 
+            background-size: cover; 
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent;
+        }
+        .inv-slot.active { opacity: 1; border-color: var(--gold); box-shadow: 0 0 15px var(--gold); }
+
+        .card-red { background-image: url('card-red.png'); }
+        .card-shield { background-image: url('card-shield.png'); }
+        .card-ultra { background-image: url('card-ultra.png'); }
+        .card-plus { background-image: url('card-plus.png'); }
+        .card-minus { background-image: url('card-minus.png'); }
+        .card-x2 { background-image: url('card-x2.png'); }
+        .card-x0 { background-image: url('card-x0.png'); }
+        .card-phone { background-image: url('card-phone.png'); }
+
+        #game-board { 
+            display: none; 
+            grid-template-columns: repeat(9, 1fr); 
+            grid-template-rows: repeat(3, 1fr); 
+            gap: 15px; padding: 20px;
+            height: calc(100vh - var(--hud-height)); 
+            box-sizing: border-box;
+            justify-items: center; align-items: center;
+        }
+
+        .card { 
+            width: 9vw; 
+            aspect-ratio: 3857 / 5463; 
+            background: var(--morocco-red); 
+            border: none;
+            border-radius: 8px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 2rem; 
+            transition: transform 0.6s; 
+            transform-style: preserve-3d;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-image: url('back.png'); 
+            background-size: 100% 100%; 
+            background-position: center;
+        }
+
+        .card.flipped { 
+            transform: rotateY(180deg); 
+            background: white;
+            background-image: none;
+            color: black; 
+            cursor: default; 
+        }
+
+        #home-screen { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            padding-top: 210px; 
+            text-align: center; 
+        }
+        
+        .play-btn { 
+            width: 300px; 
+            height: 85px; 
+            background: url('b.png') no-repeat center center;
+            background-size: contain;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            padding: 0;
+            box-shadow: none;
+        }
+        
+        .play-btn:hover { transform: scale(1.05); }
+
+        #modal-overlay { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            z-index: 1000; justify-content: center; align-items: center; 
+        }
+
+        .modal-content { 
+            background-size: 100% 100%; 
+            background-color: transparent; 
+            border: none;
+            border-radius: 30px; 
+            color: white; 
+            text-shadow: 1px 1px 3px black; 
+            padding: 40px; 
+            box-sizing: border-box; 
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 90vw; 
+            max-width: 900px; 
+        }
+
+        .timer-circle {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: var(--morocco-red); border: 4px solid var(--gold);
+            color: white; font-size: 2rem; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px black;
+        }
+
+        .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; width: 100%; }
+        
+        .ans-btn { 
+            width: 100%; aspect-ratio: 3688 / 672;
+            background: url('g.png') no-repeat center center;
+            background-size: 100% 100%; background-color: transparent;
+            border: none; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.1rem; font-weight: bold;
+            text-shadow: 1px 1px 3px black; cursor: pointer; padding: 0;
+            transition: transform 0.2s, filter 0.2s; 
+        }
+        
+        .ans-btn:hover { 
+            transform: scale(1.02); filter: brightness(1.2);
+            background: url('f.png') no-repeat center center;
+            background-size: 100% 100%;
+        }
+
+        .modal-action-btn {
+            padding: 10px 30px; font-size: 1.2rem; cursor: pointer; 
+            border-radius: 10px; border: none; background: var(--gold); 
+            font-weight: bold; margin-top: 50px; 
+        }
+
+        /* UI exactly as provided in the code snippet */
+        .feed-layout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            /* Move content slightly to left */
+            padding-right: 60px; 
+        }
+        
+        .feed-card-img {
+            width: 120px;
+            height: auto;
+            aspect-ratio: 3857 / 5463;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+
+        #name-warning {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-top: 10px;
+            height: 24px;
+            display: none;
+            text-shadow: 1px 1px 2px black;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h1 style="text-align: center; color: var(--gold); margin-top: 5;">TOP SCORES</h1>
+        <ul id="leaderboard-list"></ul>
+    </div>
+
+    <div id="main-container">
+        <div id="hud">
+            <div id="score-box">0</div>
+            <div id="inventory">
+                <div class="inv-slot card-red" title="Elimination"></div>
+                <div class="inv-slot card-shield" title="Shield"></div>
+                <div class="inv-slot card-ultra" title="Ultra Joker"></div>
+                <div class="inv-slot card-plus" title="+1"></div>
+                <div class="inv-slot card-minus" title="-1"></div>
+                <div class="inv-slot card-x2" title="Double"></div>
+                <div class="inv-slot card-x0" title="Reset"></div>
+                <div class="inv-slot card-phone" title="Phone"></div>
+            </div>
+        </div>
+
+        <div id="home-screen">
+            <h1 style="font-size: 3.5rem; text-shadow: 2px 2px 10px black; margin: 0;">MOROCCO AFCON QUIZ</h1>
+            <input type="text" id="username" placeholder="ENTER YOUR NAME" style="padding:15px; border-radius:10px; font-size:1.2rem; width:300px; text-align:center; margin-top: 30px; border: 2px solid var(--gold);">
+            <div id="name-warning">PLEASE ENTER YOUR NAME!</div>
+            <br>
+            <button class="play-btn" onclick="startGame()">PLAY</button>
+        </div>
+
+        <div id="game-board"></div>
+    </div>
+
+    <div id="modal-overlay">
+        <div class="modal-content" id="modal-body"></div>
+    </div>
+
+    <script>
+        const questions = [
+    {q: "ما هو أول لقب فازت به المغرب في كأس إفريقيا للأمم؟", a: ["2004", "1988", "1976", "1980"], c: [2]},
+    {q: "كم مرة استضافت المغرب بطولة كأس إفريقيا للأمم (شاملة 2025)؟", a: ["مرة واحدة", "مرتين", "3 مرات", "4 مرات"], c: [1]},
+    {q: "من هو الهداف التاريخي للمنتخب المغربي عبر التاريخ؟", a: ["صلاح الدين بصير", "يوسف النصيري", "مروان الشماخ", "أحمد فرس"], c: [3]},
+    {q: "ما أفضل إنجاز للمغرب في كأس إفريقيا بعد لقب 1976؟", a: ["المركز الثالث", "الوصافة (2004)", "ربع النهائي", "المركز الرابع"], c: [1]},
+    {q: "من هو المدرب الذي قاد المغرب للفوز بكأس إفريقيا 1976؟", a: ["المهدي فاريا", "غوردون مارديسكو", "بادو الزاكي", "هنري ميشيل"], c: [1]},
+    {q: "كم عدد المنتخبات في أول نسخة من كأس إفريقيا؟", a: ["3 منتخبات", "8 منتخبات", "6 منتخبات", "4 منتخبات"], c: [0]},
+    {q: "ما هو أفضل ترتيب حققه المغرب في تصنيف الفيفا عبر التاريخ؟", a: ["المركز 20", "المركز 13", "المركز 10", "المركز 11"], c: [2]},
+    {q: "من هو أول لاعب مغربي فاز بجائزة أفضل لاعب إفريقي؟", a: ["أحمد فرس", "التيمومي", "الزاكي", "حجي"], c: [0]},
+    {q: "في أي سنة شارك المغرب لأول مرة في كأس إفريقيا؟", a: ["1976", "1986", "1972", "1970"], c: [2]},
+    {q: "ما هو النادي المغربي الأكثر تتويجًا بالألقاب القارية؟", a: ["الوداد", "الرجاء", "الجيش الملكي", "بركان"], c: [1]},
+    {q: "ما اسم الهيئة الإفريقية المشرفة على كرة القدم؟", a: ["الفيفا", "اليويفا", "الكونكاكاف", "الكاف"], c: [3]},
+    {q: "كم مرة بلغ المنتخب المغربي نهائي كأس إفريقيا؟", a: ["مرتين", "3 مرات", "4 مرات", "مرة واحدة"], c: [0]},
+    {q: "ما هو أفضل مركز حققه المغرب في كأس العالم؟", a: ["ربع النهائي", "دور الـ16", "نصف النهائي (الرابع)", "الدور الأول"], c: [2]},
+    {q: "في أي مدينة يوجد ملعب محمد الخامس؟", a: ["الرباط", "مراكش", "الدار البيضاء", "طنجة"], c: [2]},
+    {q: "كم عدد الفرق المشاركة في البطولة الوطنية المغربية؟", a: ["14 فريقاً", "16 فريقاً", "18 فريقاً", "20 فريقاً"], c: [1]},
+    {q: "ما هما الفريقان اللذان يلعبان ديربي الدار البيضاء؟", a: ["الجيش والفتح", "الرجاء والوداد", "الماص والوداد", "الرجاء وبركان"], c: [1]},
+    {q: "أي فريق مغربي فاز بدوري أبطال إفريقيا أولًا؟", a: ["الرجاء", "الوداد", "الكوكب المراكشي", "الجيش الملكي"], c: [3]},
+    {q: "كم مرة فاز الوداد بدوري أبطال إفريقيا؟", a: ["مرة واحدة", "4 مرات", "3 مرات", "مرتين"], c: [2]},
+    {q: "كم مرة فاز الرجاء بدوري أبطال إفريقيا؟", a: ["3 مرات", "مرتين", "4 مرات", "5 مرات"], c: [0]},
+    {q: "من هم اللاعبون المغاربة الذين فازوا بدوري أبطال أوروبا؟", a: ["حكيمي", "زياش", "براهيم دياز", "الكل صحيح"], c: [0, 1, 2, 3]},
+    {q: "في أي قارة يلعب المنتخب المغربي رسميًا؟", a: ["أوروبا", "آسيا", "إفريقيا", "أمريكا"], c: [2]},
+    {q: "ما اسم المدرب الحالي للمنتخب المغربي (2025)؟", a: ["وحيد خليلوزيتش", "هيرفي رونار", "جمال السلامي", "وليد الركراكي"], c: [3]},
+    {q: "في أي بلد أُقيمت كأس إفريقيا 1976؟", a: ["إثيوبيا", "مصر", "الكاميرون", "السودان"], c: [0]},
+    {q: "كم مدة الشوط الواحد في كرة القدم؟", a: ["90 دقيقة", "30 دقيقة", "45 دقيقة", "60 دقيقة"], c: [2]},
+    {q: "ما هو المنتخب الذي خسر أمامه المغرب نهائي 2004؟", a: ["مصر", "تونس", "الكاميرون", "نيجيريا"], c: [1]},
+    {q: "من هو هداف المنتخب المغربي في كأس إفريقيا 2004؟", a: ["يوسف مختاري", "مروان الشماخ", "يوسف حاجي", "طلال القرقوري"], c: [0]},
+    {q: "ما هو أكبر فوز للمغرب في تاريخ كأس إفريقيا؟", a: ["4-0", "3-0", "6-0", "5-1"], c: [3]},
+    {q: "ما هو أول نادٍ مغربي شارك في دوري أبطال إفريقيا؟", a: ["الوداد", "الجيش الملكي", "الرجاء", "القنيطري"], c: [1]},
+    {q: "في أي سنة فاز الرجاء بالأبطال دون هزيمة؟", a: ["1997", "2002", "1999", "2018"], c: [2]},
+    {q: "النادي المغربي الذي فاز بالكونفدرالية أول مرة؟", a: ["الجيش الملكي", "الفتح الرباطي", "المغرب الفاسي", "الرجاء"], c: [0]},
+    {q: "ما اسم الملعب الذي احتضن نهائي إفريقيا 1988؟", a: ["مولاي عبد الله", "فاس", "محمد الخامس", "أدرار"], c: [2]},
+    {q: "من هو أول مدرب أجنبي للمنتخب المغربي؟", a: ["غوي كليزو", "فونطين", "مارديكو", "فاريا"], c: [0]},
+    {q: "في أي نسخة أقصي المغرب بركلات الترجيح لأول مرة؟", a: ["1986", "1988", "1998", "2019"], c: [1]},
+    {q: "من هو أصغر لاعب مغربي شارك في كأس إفريقيا؟", a: ["بوفال", "أشرف حكيمي", "أوناحي", "بلال الخنوس"], c: [1, 3]},
+    {q: "من هو الحارس المغربي الأساسي الحالي (2025)؟", a: ["ياسين بونو", "منير المحمدي", "المهدي بنعبيد", "أنس الزنيتي"], c: [0, 1]},
+    {q: "سنة دخل المغرب قائمة أفضل 10 منتخبات عالميًا؟", a: ["2022", "1986", "2004", "1998"], c: [3]},
+    {q: "اللاعب الأكثر مشاركة في مباريات كأس إفريقيا؟", a: ["أحمد فرس", "بوصوفة", "نورالدين النيبت", "حكيمي"], c: [2]},
+    {q: "المدرب صاحب أطول سلسلة دون هزيمة بإفريقيا للمغرب؟", a: ["وليد الركراكي", "رونار", "خليلوزيتش", "الزاكي"], c: [2]},
+    {q: "أول لاعب مغربي يفوز بالأبطال كلاعب أساسي؟", a: ["أشرف حكيمي", "نورالدين النيبت", "زياش", "رضوان التاتوم"], c: [0]},
+    {q: "لاعب مغربي سجّل في نصف نهائي دوري الأبطال؟", a: ["بن عطية", "حكيم زياش", "حكيمي", "مزراوي"], c: [1, 3]},
+    {q: "لاعب مغربي فاز بالدوري الإيطالي مع إنتر؟", a: ["حسين خرجة", "زياش", "بنعطية", "أشرف حكيمي"], c: [3]},
+    {q: "لاعب مغربي لعب نهائي الأبطال مع يوفنتوس؟", a: ["حكيمي", "مهدي بنعطية", "زياش", "بونو"], c: [1]},
+    {q: "لاعب مغربي حمل شارة القيادة في نادٍ أوروبي بالأبطال؟", a: ["بنعطية", "نورالدين النيبت", "زياش", "رومان سايس"], c: [1]},
+    {q: "لاعب لعب دوري الأبطال مع 3 أندية أوروبية أو أكثر؟", a: ["زياش", "حكيمي", "بنعطية", "الكل صحيح"], c: [3]},
+    {q: "لاعب واجه برشلونة وريال مدريد بنفس النسخة؟", a: ["أمين حارث", "ياسين بونو", "نصير مزراوي", "عز الدين أوناحي"], c: [2]},
+    {q: "أول لاعب يسجل أكثر من هدف بنسخة واحدة للأبطال؟", a: ["يوسف النصيري", "مروان الشماخ", "زياش", "براهيم دياز"], c: [1]},
+    {q: "لاعب شارك في دوري الأبطال وهو أقل من 20 سنة؟", a: ["نصير مزراوي", "زياش", "أشرف حكيمي", "الخنوس"], c: [2]},
+    {q: "من هو اللاعب المغربي الذي لعب للزمالك؟", a: ["بانون", "أشرف بنشرقي", "الكرتي", "أوناجم"], c: [1, 3]},
+    {q: "لاعب سجّل في أبطال إفريقيا وأبطال أوروبا؟", a: ["زياش", "حكيمي", "لا أحد", "بنعطية"], c: [2]},
+    {q: "اللاعب الأكثر دقائق لعب في موسم واحد للأبطال؟", a: ["أشرف حكيمي", "نورالدين النيبت", "بنعطية", "زياش"], c: [1]},
+    {q: "أول لاعب مغربي يسجل هدفًا في دوري أبطال أوروبا؟", a: ["نورالدين النيبت", "حسن فاضل", "مصطفى حاجي", "الشماخ"], c: [0]},
+    {q: "لاعب وصل لنهائي أبطال أوروبا مع بايرن ميونيخ؟", a: ["نصير مزراوي", "مهدي بنعطية", "زياش", "حكيمي"], c: [1]},
+    {q: "لعبت لبايرن ميونيخ ويوفنتوس، من أنا؟", a: ["حكيمي", "بوصوفة", "خرجة", "مهدي بنعطية"], c: [3]},
+    {q: "لاعب عاد للرجاء بعد لعبه في الدوري القطري؟", a: ["الزنيتي", "محسن متولي", "الحافيظي", "ياجور"], c: [1, 3]},
+    {q: "خريج لامسيا وسجلت ضد العراق في الأولمبياد 2024؟", a: ["أخوماش", "إلياس بنصغير", "ريتشارلسون", "الزلزولي"], c: [0, 3]},
+    {q: "من هو مدرب المنتخب الأولمبي الحائز على برونزية 2024؟", a: ["عموتة", "طارق سكيتيوي", "الركراكي", "الزاكي"], c: [1]},
+    {q: "لعبت مع الوداد وولدت في كندا، من أنا؟", a: ["أيمن مترجي", "العملود", "ياسين بونو", "جبران"], c: [2]},
+    {q: "من هو النجم المغربي الجديد المنضم من ريال مدريد (2024)؟", a: ["حكيمي", "براهيم دياز", "زياش", "أدلي"], c: [1]},
+    {q: "سجلت هدفين في نهائي كأس العرب، من أنا؟", a: ["بانون", "محمد الناهيري", "الشيبي", "الحداد"], c: [1]},
+    {q: "من هو هداف أولمبياد باريس 2024 برصيد 8 أهداف؟", a: ["دياز", "سفيان رحيمي", "الزلزولي", "أخوماش"], c: [1]},
+    {q: "ما هو المركز الذي حققه المغرب في أولمبياد 2024؟", a: ["الرابع", "الثالث (البرونزية)", "الثاني (الفضة)", "الأول (الذهب)"], c: [1]},
+    {q: "صاحب الهدف التاريخي ضد البرتغال (2022)? ", a: ["حكيم زياش", "يوسف النصيري", "سفيان بوفال", "أبوخلال"], c: [1]},
+    {q: "حارس مرمى فاز بجائزة 'زامورا' الإسبانية؟", a: ["منير المحمدي", "الزاكي", "التكناوتي", "ياسين بونو"], c: [3]},
+    {q: "أول فريق مغربي يفوز بدوري أبطال إفريقيا (1985)؟", a: ["الوداد", "الرجاء", "الماص", "الجيش الملكي"], c: [3]},
+    {q: "سنة تأهل المغرب للدور الثاني بالمونديال لأول مرة؟", a: ["1994", "1986", "1998", "2022"], c: [1]},
+    {q: "المنتخب الذي واجهه المغرب في دور الـ16 (1986)؟", a: ["ألمانيا الغربية", "إنجلترا", "البرتغال", "بولندا"], c: [0]},
+    {q: "كم هدفًا سجل حمد الله ليكسر الرقم القياسي التاريخي للدوري السعودي؟", a: ["20 هدفاً", "34 هدفاً", "25 هدفاً", "30 هدفاً"], c: [1]},
+    {q: "لعبت للريال، دورتموند، إنتر وباريس، من أنا؟", a: ["زياش", "بنعطية", "أشرف حكيمي", "حارث"], c: [2]},
+    {q: "الملعب الكبير الذي يقع في طنجة؟", a: ["أدرار", "فاس", "مولاي عبد الله", "ابن بطوطة"], c: [3]},
+    {q: "سجل هدفين ضد اسكتلندا في مونديال 1998؟", a: ["كماتشو", "حجي", "صلاح الدين بصير", "شيبو"], c: [2]},
+    {q: "مدرب قاد المغرب لمونديال 2018؟", a: ["الزاكي", "هيرفي رونار", "غيريتس", "خليلوزيتش"], c: [1]},
+    {q: "لعبت لأرسنال وبوردو واشتهرت بالرأسيات؟", a: ["النيبت", "السعيدي", "مروان الشماخ", "القادوري"], c: [2]},
+    {q: "من هو اللاعب الملقب بـ 'كماتشو'؟", a: ["عبد الجليل هدا", "صلاح الدين بصير", "أحمد فرس", "التيمومي"], c: [0]},
+    {q: "إنجاز منتخب الصالات (Futsal) في التصنيف العالمي؟", a: ["المركز الأول", "المركز العاشر", "المركز السادس", "المركز الثاني"], c: [2]},
+    {q: "مهندس نجاحات منتخب الصالات (المدرب)؟", a: ["عموتة", "هشام الدكيك", "السلامي", "سكيتيوي"], c: [1]},
+    {q: "أول لاعبة محجبة تشارك في كأس العالم؟", a: ["غزلان الشباك", "فاطمة تاكناوت", "روزيلا", "نهيلة بنزينة"], c: [3]},
+    {q: "الفريق المغربي المعروف بلقب 'الماص'? ", a: ["المغرب التطواني", "الفتح", "المغرب الفاسي", "مولاي وجدة"], c: [2]},
+    {q: "سجل ركلة 'بانينكا' ضد إسبانيا (2022)؟", a: ["أشرف حكيمي", "زياش", "صابيري", "بوفال"], c: [0]},
+    {q: "أين أقيمت كأس العالم للأندية 2013 (الوصافة)؟", a: ["اليابان", "الإمارات", "المغرب", "السعودية"], c: [2]},
+    {q: "فاز بالكرة الذهبية الإفريقية عام 1998؟", a: ["النيبت", "بصير", "مصطفى حجي", "كماتشو"], c: [2]},
+    {q: "قائد سابق لعب لديبورتيفو لاكورونيا؟", a: ["صلاح الدين بصير", "نورالدين النيبت", "حجي", "الزاكي"], c: [1]},
+    {q: "نادي برتقالي فاز بالكونفدرالية مؤخرًا؟", a: ["حسنية أكادير", "أولمبيك أسفي", "طنجة", "نهضة بركان"], c: [3]},
+    {q: "الهداف التاريخي للمغرب في كأس العالم؟", a: ["حجي", "يوسف النصيري", "بصير", "خيري"], c: [1]},
+    {q: "انتقلت من أنجيه لمارسيليا بعد المونديال؟", a: ["بوفال", "أمرابط", "عز الدين أوناحي", "حارث"], c: [2]},
+    {q: "كلمة شهيرة للركراكي؟", a: ["سير سير", "الكرة ضرب", "ديرو النية", "نربحو"], c: [0, 2]},
+    {q: "لعبت لتشيلسي وفزت بالأبطال؟", a: ["بنعطية", "حكيمي", "مزراوي", "حكيم زياش"], c: [3]},
+    {q: "سجل هدف النهائي في إفريقيا 2004؟", a: ["يوسف مختاري", "الشماخ", "حجي", "الزاكي"], c: [0]},
+    {q: "النادي الإسباني السابق لياسين بونو؟", a: ["الريال", "إشبيلية", "برشلونة", "جيرونا"], c: [1, 3]},
+    {q: "الفتى الذهبي (بنفيكا، كوينز بارك، ميلان)؟", a: ["كارسيلا", "بوصوفة", "عادل تاعرابت", "امرابط"], c: [2]},
+    {q: "سجل هدف الفوز للوداد في نهائي 2017؟", a: ["وليد الكرتي", "بنشرقي", "أوناجم", "الحداد"], c: [0]},
+    {q: "كم منتخب يتأهل من كل مجموعة بكأس إفريقيا الحالية؟", a: ["اثنان", "ثلاثة (أفضل ثوالث)", "واحد", "أربعة"], c: [0, 1]},
+    {q: "لعبت لويست هام ورين (مدافع)؟", a: ["سايس", "الياميق", "بانون", "نايف أكرد"], c: [3]},
+    {q: "سجل هدف 'المقصية' الشهيرة للرجاء ضد بني ملال؟", a: ["بن مالانغو", "متولي", "الحافيظي", "سفيان رحيمي"], c: [0]},
+    {q: "المنتخب الذي أقصاه المغرب للتأهل لـ 2022؟", a: ["مالي", "الكاميرون", "الكونغو الديمقراطية", "غانا"], c: [2]},
+    {q: "هداف الدوري اليوناني وصاحب هاتريك ضد أستون فيلا؟", a: ["العربي", "أيوب الكعبي", "النصيري", "بوفال"], c: [1]},
+    {q: "فاز المغرب ببرونزية الأولمبياد سنة؟", a: ["2020", "2016", "2000", "2024"], c: [3]},
+    {q: "من هو الملقب بـ 'المايسترو'؟", a: ["عبد المجيد الظلمي", "التيمومي", "الزاكي", "فرس"], c: [0]},
+    {q: "أول خصم للمغرب في مونديال 1970؟", a: ["بيرو", "ألمانيا الغربية", "بلغاريا", "البرازيل"], c: [1]},
+    {q: "أفضل لاعب ناشئ في إفريقيا مؤخرًا؟", a: ["الخنوس", "الزلزولي", "إلياس بنصغير", "الصيباري"], c: [0, 2]},
+    {q: "أين ستقام نهائي إفريقيا 2025 رسميًا؟", a: ["الدار البيضاء", "الرباط", "طنجة", "مراكش"], c: [1]}
+        ];
+
+        // Audio objects
+        const audioFlip = new Audio('https://www.soundjay.com/misc/sounds/swish-2.mp3');
+        const audioCorrect = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-02.mp3');
+        const audioWrong = new Audio('https://www.soundjay.com/misc/sounds/fail-trombone-01.mp3');
+        const audioSpecial = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-01.mp3');
+        const audioWin = new Audio('https://www.soundjay.com/human/sounds/applause-01.mp3');
+        const audioStart = new Audio('Referee_Whistle.mp3');
+        const audioTick = new Audio('Clock_Ticking.mp3');
+
+        let score = 0, playerName = "", shields = 0, ultraJokerLives = 0, phoneStock = 0;
+        let questionTimer;
+        let availableQuestions = [];
+        let activeTick = null;
+        let currentQuestion = null;
+        const specialTypes = ['red', 'shield', 'ultra', 'plus', 'minus', 'x2', 'x0', 'phone'];
+
+        function startGame() {
+            playerName = document.getElementById('username').value.trim();
+            const warning = document.getElementById('name-warning');
+            
+            if(!playerName) {
+                warning.style.display = 'block';
+                document.getElementById('username').style.borderColor = 'red';
+                return;
+            }
+            
+            warning.style.display = 'none';
+            document.getElementById('username').style.borderColor = 'var(--gold)';
+            
+            audioStart.currentTime = 0;
+            audioStart.play().catch(e => console.log("Audio play failed:", e));
+
+            document.body.classList.add('game-active');
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('game-board').style.display = 'grid';
+            availableQuestions = [...questions];
+            initGrid();
+        }
+
+        function initGrid() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            if (availableQuestions.length === 0) { showVictoryScreen(); return; }
+            let chosenSpecials = specialTypes.filter(() => Math.random() > 0.3);
+            const totalCards = 27;
+            let triviaCount = totalCards - chosenSpecials.length;
+            if (availableQuestions.length < triviaCount) { triviaCount = availableQuestions.length; }
+            availableQuestions.sort(() => 0.5 - Math.random());
+            let deckQs = availableQuestions.splice(0, triviaCount);
+            let deck = [
+                ...deckQs.map(q => ({type: 'trivia', data: q})),
+                ...chosenSpecials.map(s => ({type: s}))
+            ];
+            while(deck.length < totalCards) {
+                const randomSpecial = specialTypes[Math.floor(Math.random() * specialTypes.length)];
+                deck.push({type: randomSpecial});
+            }
+            deck.sort(() => 0.5 - Math.random());
+            deck.forEach(card => {
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.onclick = () => {
+                    if(el.classList.contains('flipped')) return;
+                    audioFlip.currentTime = 0; audioFlip.play();
+                    el.classList.add('flipped');
+                    setTimeout(() => card.type === 'trivia' ? showQuestion(card.data) : triggerSpecial(card.type), 300);
+                };
+                board.appendChild(el);
+            });
+        }
+
+        function startTimer() {
+            let timeLeft = 30;
+            const timerEl = document.getElementById('timer-display');
+            if(timerEl) timerEl.innerText = timeLeft;
+            clearInterval(questionTimer);
+            questionTimer = setInterval(() => {
+                timeLeft--;
+                if(timerEl) timerEl.innerText = timeLeft;
+                if(timeLeft <= 5 && timeLeft > 0) {
+                    if(activeTick) activeTick.pause();
+                    activeTick = audioTick.cloneNode();
+                    activeTick.play().catch(e => console.log(e));
+                }
+                if(timeLeft <= 0) {
+                    clearInterval(questionTimer);
+                    if(activeTick) activeTick.pause();
+                    showGameOverScreen();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(questionTimer);
+            if(activeTick) activeTick.pause();
+        }
+
+        function setModalStyle(type) {
+            const modalBody = document.getElementById('modal-body');
+            modalBody.style.width = '90vw';
+            modalBody.style.maxWidth = '900px';
+            if (type === 'question') {
+                modalBody.style.backgroundImage = "url('e.png')";
+                modalBody.style.aspectRatio = "3750 / 1580";
+            } else if (type === 'bravo') {
+                modalBody.style.backgroundImage = "url('bravo.png')";
+                modalBody.style.aspectRatio = "6000 / 3375";
+                modalBody.style.maxWidth = '1100px';
+            } else if (type === 'over') {
+                modalBody.style.backgroundImage = "url('over.png')";
+                modalBody.style.aspectRatio = "16 / 9"; 
+            } else if (type === 'feed') {
+                modalBody.style.backgroundImage = "url('feed.png')";
+                modalBody.style.aspectRatio = "16 / 9"; 
+            }
+        }
+
+        function triggerSpecial(type) {
+            const idx = specialTypes.indexOf(type);
+            document.querySelectorAll('.inv-slot')[idx].classList.add('active');
+            let msg = "", btnAction = "closeModal()";
+            
+            // UI exactly as your code snippet
+            if(type === 'red') { 
+                msg = "🚩 RED CARD! Game Over."; 
+                btnAction = "showGameOverScreen()"; 
+                audioWrong.currentTime = 0; audioWrong.play();
+            } else { 
+                audioSpecial.currentTime = 0; 
+                audioSpecial.play();
+            }
+
+            if(type === 'shield') { shields++; msg = "Shield Collected! 🛡️"; }
+            if(type === 'ultra') { ultraJokerLives = 4; msg = "Ultra Joker Collected!<span style='display:block'>(4 Lives) 🃏</span>"; }
+            if(type === 'plus') { score++; msg = "+1 Point! ⚽"; }
+            if(type === 'minus') { score--; msg = "-1 Point! 🔻"; }
+            if(type === 'x2') { score *= 2; msg = "Score Doubled! ✖️2️⃣"; }
+            if(type === 'x0') { score = 0; msg = "Score Reset! 0️⃣"; }
+            if(type === 'phone') { phoneStock++; msg = "Phone-a-Friend Collected! 📞"; }
+            
+            updateScoreUI();
+            const modal = document.getElementById('modal-overlay');
+            setModalStyle('feed');
+            modal.style.display = 'flex';
+
+            // Inner HTML following exactly the provided UI structure
+            document.getElementById('modal-body').innerHTML = `
+                <div class="feed-layout">
+                    <div class="feed-card-img card-${type}"></div>
+                    <div>
+                        <h2 style="font-size: 2rem; margin:0;">${type.toUpperCase()}</h2>
+                        <h3 style="font-size: 1.5rem; margin: 10px 0;">${msg}</h3>
+                    </div>
+                </div>
+                <button class="modal-action-btn" onclick="${btnAction}">CONTINUE</button>
+            `;
+        }
+
+        function showGameOverScreen() {
+            audioWrong.currentTime = 0; audioWrong.play();
+            setModalStyle('over');
+            document.getElementById('modal-body').innerHTML = `
+                <button class="modal-action-btn" style="margin-top: 250px;" onclick="resetGame()">RESTART</button>
+            `;
+        }
+
+        function showVictoryScreen() {
+            audioWin.currentTime = 0; audioWin.play();
+            setModalStyle('feed');
+            const modal = document.getElementById('modal-overlay');
+            modal.style.display = 'flex';
+            document.getElementById('modal-body').innerHTML = `
+                <h2 style="font-size: 2.5rem; margin:0;">CONGRATULATIONS!</h2>
+                <h3 style="font-size: 1.5rem; margin: 20px 0;">what a super zlayji wa9ef 9edami daba</h3>
+                <button class="modal-action-btn" onclick="resetGame()">RESTART</button>
+            `;
+        }
+
+        function showQuestion(q) {
+            currentQuestion = q;
+            const modal = document.getElementById('modal-overlay');
+            setModalStyle('question');
+            modal.style.display = 'flex';
+            document.getElementById('modal-body').innerHTML = `
+                <div id="timer-display" class="timer-circle">30</div>
+                <h2>${q.q}</h2>
+                <div class="ans-grid">${q.a.map((ans, i) => `<button class="ans-btn" onclick="handleAnswer(${i}, ${JSON.stringify(q.c)})">${ans}</button>`).join('')}</div>
+                ${phoneStock > 0 ? `<button onclick="usePhone()" class="modal-action-btn" style="margin-top:20px; font-size:1rem;">Use Phone-a-Friend (${phoneStock})</button>` : ''}
+            `;
+            startTimer();
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            const remaining = document.querySelectorAll('.card:not(.flipped)').length;
+            if (remaining === 0) { setTimeout(initGrid, 500); }
+        }
+
+        function usePhone() { 
+            if (phoneStock <= 0 || !currentQuestion) return;
+            phoneStock--;
+            updateScoreUI();
+
+            const phoneBtn = document.querySelector('#modal-body .modal-action-btn[onclick="usePhone()"]');
+            if (phoneBtn) phoneBtn.style.display = 'none';
+
+            const buttons = document.querySelectorAll('.ans-grid .ans-btn');
+            const correctIndices = Array.isArray(currentQuestion.c) ? currentQuestion.c : [currentQuestion.c];
+            const incorrectIndices = [];
+
+            buttons.forEach((btn, idx) => {
+                if (!correctIndices.includes(idx)) incorrectIndices.push(idx);
+            });
+
+            incorrectIndices.sort(() => 0.5 - Math.random());
+            const toHide = incorrectIndices.slice(0, 2);
+
+            toHide.forEach(idx => {
+                buttons[idx].style.visibility = 'hidden';
+                buttons[idx].disabled = true;
+            });
+        }
+
+        function handleAnswer(choice, correctIndices) {
+            stopTimer();
+            const isCorrect = Array.isArray(correctIndices) ? correctIndices.includes(choice) : choice === correctIndices;
+            
+            if(isCorrect) {
+                score++; audioCorrect.currentTime = 0; audioCorrect.play();
+                setModalStyle('bravo');
+                document.getElementById('modal-body').innerHTML = `
+                    <h2 style="font-size: 3rem; margin-bottom: 0;"></h2>
+                    <button class="modal-action-btn" style="margin-top: 250px;" onclick="closeModal()">CONTINUE</button>
+                `;
+            } else {
+                if(ultraJokerLives > 0) {
+                    ultraJokerLives--; audioSpecial.currentTime = 0; audioSpecial.play();
+                    setModalStyle('feed');
+                    document.getElementById('modal-body').innerHTML = `
+                        <div class="feed-layout"><div class="feed-card-img card-ultra"></div><h3>Ultra Joker saved you! Lives left: ${ultraJokerLives}</h3></div>
+                        <button class="modal-action-btn" onclick="closeModal()">CONTINUE</button>`;
+                } else if(shields > 0) {
+                    shields--; audioSpecial.currentTime = 0; audioSpecial.play();
+                    setModalStyle('feed');
+                    document.getElementById('modal-body').innerHTML = `
+                        <div class="feed-layout"><div class="feed-card-img card-shield"></div><h3>Shield saved you!</h3></div>
+                        <button class="modal-action-btn" onclick="closeModal()">CONTINUE</button>`;
+                } else { showGameOverScreen(); }
+            }
+            updateScoreUI();
+        }
+
+        function updateScoreUI() {
+            let status = ultraJokerLives > 0 ? ` [Joker: ${ultraJokerLives}]` : "";
+            document.getElementById('score-box').innerText = score + status;
+            
+            const phoneSlot = document.querySelector('.card-phone');
+            if (phoneStock > 0) phoneSlot.classList.add('active');
+            else phoneSlot.classList.remove('active');
+        }
+
+        function resetGame() {
+            if (playerName) {
+                let records = JSON.parse(localStorage.getItem('m_scores_2025') || '[]');
+                let existing = records.find(r => r.name === playerName);
+                
+                if (existing) {
+                    if (score > existing.score) {
+                        existing.score = score;
+                    }
+                } else {
+                    records.push({name: playerName, score: score});
+                }
+                
+                records.sort((a,b) => b.score - a.score);
+                localStorage.setItem('m_scores_2025', JSON.stringify(records.slice(0, 10)));
+            }
+            location.reload();
+        }
+
+        function loadLeaderboard() {
+            const list = document.getElementById('leaderboard-list');
+            const records = JSON.parse(localStorage.getItem('m_scores_2025') || '[]');
+            list.innerHTML = records.map(r => `<li><span>${r.name}</span><b>${r.score}</b></li>`).join('');
+        }
+        
+        loadLeaderboard();
+    </script>
+</body>
+</html>

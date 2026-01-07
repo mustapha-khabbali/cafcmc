@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morocco Football Memory - 2025 Edition</title>
+    <style>
+        :root { 
+            --morocco-red: #c1272d; 
+            --morocco-green: #006233; 
+            --gold: #ffcc00; 
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background-color: #820001;
+            color: white; 
+            margin: 0; 
+            padding: 0;
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden; 
+        }
+
+        /* Main Container - Full Screen */
+        #main-container { 
+            width: 100vw;
+            height: 100vh;
+            background-image: url('d.png');
+            background-size: cover;
+            background-position: center; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+        }
+
+        #game-board { 
+            display: grid; 
+            gap: 10px; 
+            padding: 20px;
+            height: 100vh; 
+            width: 100vw;
+            box-sizing: border-box;
+            justify-content: center; 
+            align-content: center;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            width: 8vw; 
+            max-width: 180px;
+            aspect-ratio: 3857 / 5463; 
+        }
+
+        .card { 
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card.flipped { transform: rotateY(180deg); }
+        .card.matched { visibility: hidden; opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            background-size: 100% 100%;
+            background-position: center;
+        }
+
+        .card-back {
+            background-image: url('back.png');
+            background-color: var(--morocco-red);
+            border: none;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+            background-color: white;
+        }
+
+        #modal-overlay { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
+            z-index: 1000; justify-content: center; align-items: center; 
+        }
+
+        .modal-content { 
+            background-image: url('feed.png');
+            background-size: 100% 100%;
+            background-color: transparent;
+            background-repeat: no-repeat;
+            width: 80vw; 
+            max-width: 800px; 
+            aspect-ratio: 16 / 9;
+            color: white; 
+            text-shadow: 2px 2px 5px black;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+
+        .continue-btn {
+            width: 280px; 
+            height: 80px; 
+            background: url('b.png') no-repeat center center;
+            background-size: 100% 100%;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #FFDF00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            margin-top: 30px;
+        }
+        
+        .continue-btn:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <div id="game-board"></div>
+    </div>
+
+    <div id="modal-overlay">
+        <div class="modal-content" id="modal-body">
+            <h2 id="modal-title" style="font-size: 3rem; margin: 0;">LEVEL CLEAR!</h2>
+            <p id="modal-text" style="font-size: 1.5rem; margin: 10px 0;">Get ready for the next stage.</p>
+            <button class="continue-btn" id="modal-action" onclick="nextStage()">CONTINUE</button>
+        </div>
+    </div>
+
+    <script>
+        const STAGES = [
+            { rows: 2, cols: 3, total: 6, match: 2 },  
+            { rows: 3, cols: 4, total: 12, match: 2 }, 
+            { rows: 3, cols: 6, total: 18, match: 2 }, 
+            { rows: 3, cols: 8, total: 24, match: 2 }, 
+            { rows: 3, cols: 9, total: 27, match: 3 }  
+        ];
+
+        let currentStageIdx = 0;
+        let flippedCards = [];
+        let canFlip = true;
+        let matchesFound = 0;
+
+        const audioFlip = new Audio('https://www.soundjay.com/misc/sounds/swish-2.mp3');
+        const audioMatch = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-02.mp3');
+        const audioWin = new Audio('https://www.soundjay.com/human/sounds/applause-01.mp3');
+
+        function loadStage() {
+            const stage = STAGES[currentStageIdx];
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            flippedCards = [];
+            matchesFound = 0;
+            canFlip = true;
+
+            board.style.gridTemplateColumns = `repeat(${stage.cols}, auto)`;
+            board.style.gridTemplateRows = `repeat(${stage.rows}, auto)`;
+
+            const cardWidth = `${Math.floor(85 / stage.cols)}vw`;
+            const numSets = stage.total / stage.match;
+            
+            let imagePool = Array.from({length: 30}, (_, i) => `${i + 1}.png`);
+            imagePool.sort(() => Math.random() - 0.5);
+            const selectedImages = imagePool.slice(0, numSets);
+
+            let deck = [];
+            selectedImages.forEach(img => {
+                for(let i=0; i < stage.match; i++) {
+                    deck.push(img);
+                }
+            });
+
+            deck.shuffle = function() {
+                for (let i = this.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this[i], this[j]] = [this[j], this[i]];
+                }
+            };
+            deck.shuffle();
+
+            deck.forEach((imgSrc, index) => {
+                const container = document.createElement('div');
+                container.className = 'card-container';
+                container.style.width = cardWidth;
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.value = imgSrc;
+
+                const back = document.createElement('div');
+                back.className = 'card-face card-back';
+
+                const front = document.createElement('div');
+                front.className = 'card-face card-front';
+                front.style.backgroundImage = `url('${imgSrc}')`;
+                front.onerror = () => front.style.backgroundColor = 'var(--gold)';
+
+                card.appendChild(back);
+                card.appendChild(front);
+                container.appendChild(card);
+
+                container.onclick = () => flipCard(card);
+                board.appendChild(container);
+            });
+        }
+
+        function flipCard(card) {
+            const stage = STAGES[currentStageIdx];
+            if (!canFlip || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+            audioFlip.currentTime = 0;
+            audioFlip.play();
+            
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === stage.match) {
+                canFlip = false;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const stage = STAGES[currentStageIdx];
+            const isMatch = flippedCards.every(c => c.dataset.value === flippedCards[0].dataset.value);
+
+            setTimeout(() => {
+                if (isMatch) {
+                    audioMatch.play();
+                    flippedCards.forEach(c => c.classList.add('matched'));
+                    matchesFound++;
+
+                    if (matchesFound === stage.total / stage.match) {
+                        showStageComplete();
+                    }
+                } else {
+                    flippedCards.forEach(c => c.classList.remove('flipped'));
+                }
+                flippedCards = [];
+                canFlip = true;
+            }, 700);
+        }
+
+        function showStageComplete() {
+            const isLastStage = currentStageIdx === STAGES.length - 1;
+            const overlay = document.getElementById('modal-overlay');
+            const title = document.getElementById('modal-title');
+            const text = document.getElementById('modal-text');
+            const btn = document.getElementById('modal-action');
+
+            overlay.style.display = 'flex';
+
+            if (isLastStage) {
+                audioWin.play();
+                title.innerText = "CHAMPION!";
+                text.innerText = "SAFI SALITY GA3 LES CARTES";
+                btn.innerText = "RESTART";
+                btn.onclick = () => location.reload();
+            } else {
+                title.innerText = "LEVEL CLEAR!";
+                text.innerText = "NADI TABAREKLAH 3LIK";
+                btn.innerText = "CONTINUE";
+                btn.onclick = nextStage;
+            }
+        }
+
+        function nextStage() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            currentStageIdx++;
+            loadStage();
+        }
+
+        window.onload = loadStage;
+    </script>
+</body>
+</html>

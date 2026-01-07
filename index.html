@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live the AFCON Experience</title>
+    <style>
+        /* Loading the specific font for the headline */
+        @font-face {
+            font-family: 'Live-Font';
+            src: url('live.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap; 
+        }
+
+        /* Loading the specific font for the body text */
+        @font-face {
+            font-family: 'Erbar-Font';
+            src: url('Erbar.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap; 
+        }
+
+        /* Loading the specific font for the button labels */
+        @font-face {
+            font-family: 'AFCON-Font';
+            src: url('AFCON.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap; 
+        }
+
+        :root {
+            --headline-font: 'Live-Font', 'CAF-Brand', 'Roboto', sans-serif;
+            --body-font: 'Erbar-Font', 'Montserrat', sans-serif;
+            --button-label-font: 'AFCON-Font', sans-serif;
+            --afcon-red: #801416;
+        }
+
+        body {
+            background-color: var(--afcon-red);
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Preventing scroll to keep the layout tight */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header Logos Styling */
+        .logo-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 40px;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .logo-item {
+            height: 50px; 
+            width: auto;
+            object-fit: contain;
+        }
+
+        .logo-s {
+            height: 40px; 
+            width: auto;
+            object-fit: contain;        
+        }
+
+        .logo-b {
+            height: 53px; 
+            width: auto;
+            object-fit: contain;        
+        }
+            
+        .logo-y {
+            height: 41px; 
+            width: auto;
+            object-fit: contain;        
+        }
+
+        .separator {
+            height: 25px; 
+            width: auto;
+            opacity: 0.8;
+        }
+
+        .hero-container {
+            flex: 1;
+            width: 100%;
+            padding: 0 10%;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .content-box {
+            position: relative;
+            z-index: 5;
+        }
+
+        .headline {
+            font-family: var(--headline-font);
+            font-weight: normal;
+            font-size: clamp(3.1rem, 4.1vw, 5rem); 
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            word-spacing: -0.2rem;
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+            white-space: nowrap;
+            transform: translate(-90px, -120px); 
+        }
+
+        .divider {
+            width: 75px; 
+            height: 1px; 
+            background-color: white;
+            margin-top: 0.6rem;
+            margin-bottom: 0.3rem; 
+            transform: translate(-90px, -120px); 
+        }
+
+        .subtext {
+            font-family: var(--body-font);
+            font-weight: 400; 
+            font-size: 1.4rem; 
+            line-height: 1.2;
+            max-width: 600px; 
+            letter-spacing: 0.02em;
+            word-spacing: -0.2rem;
+            transform: translate(-90px, -125px); 
+            margin-bottom: 2rem;
+        }
+
+        /* Button Group Containers */
+        .btn-group-row {
+            display: flex;
+            gap: 130px; /* Spacing between buttons */
+            position: relative;
+        }
+
+        .row-top {
+            transform: translate(-90px, -70px);
+        }
+
+        .row-bottom {
+            transform: translate(40px, -30px);
+        }
+
+        /* Image Button Styling */
+        .image-btn-base {
+            display: block;
+            width: 180px; 
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            border: none;
+            background: none;
+            padding: 0;
+            position: relative; /* Necessary for centering the label */
+        }
+
+        .image-btn-base:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        /* Label Styling over btn.png */
+        .btn-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--button-label-font);
+            color: white;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            pointer-events: none; /* Allows click through to button */
+            white-space: nowrap;
+        }
+
+        /* Right Side Hero Image (p1) */
+        .p1-hero {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            height: 90vh; 
+            width: auto;
+            z-index: 1;
+            pointer-events: none; 
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 1024px) {
+            .p1-hero {
+                height: 60vh;
+                opacity: 0.4; 
+            }
+            .logo-header {
+                flex-wrap: wrap;
+                justify-content: center;
+                padding: 10px;
+                gap: 8px;
+            }
+            .btn-group-row {
+                flex-wrap: wrap;
+                transform: none;
+                margin-top: 20px;
+                justify-content: center;
+                gap: 20px;
+            }
+            .btn-label {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header with Logos and bet.png separators -->
+    <header class="logo-header">
+        <img src="caf.png" alt="caf" class="logo-item">
+        <img src="bet.png" alt="" class="separator"> 
+        <img src="cmc.png" alt="cmc" class="logo-s">
+        <img src="bet.png" alt="" class="separator">
+        <img src="dia.png" alt="dia" class="logo-item">
+        <img src="bet.png" alt="" class="separator">
+        <img src="AIG.png" alt="AIG" class="logo-item">
+        <img src="bet.png" alt="" class="separator">
+        <img src="arti.png" alt="arti" class="logo-item">
+        <img src="bet.png" alt="" class="separator">
+        <img src="fablab.png" alt="fablab" class="logo-b">
+        <img src="bet.png" alt="" class="separator">
+        <img src="y.png" alt="y" class="logo-y">
+    </header>
+
+    <main class="hero-container">
+        <!-- The big image on the max right -->
+        <img src="p1.png" alt="" class="p1-hero">
+
+        <div class="content-box fade-in">
+            <h1 class="headline">
+                Live the AFCON Experience
+            </h1>
+            
+            <div class="divider"></div>
+            
+            <p class="subtext">
+                Celebrate the heartbeat of African football.
+Interactive games, brainstormed in the FabLab and CoP at CMC BMK, highlight our institute’s
+dedication to the spectacle our country knows.
+            </p>
+
+            <!-- Top Row: btn, btn2, btn3 -->
+            <div class="btn-group-row row-top">
+                <button class="image-btn-base" id="btn" onclick="window.location.href='predict/predict.html'">
+                    <img src="btn.png" alt="" style="width: 100%; height: auto;">
+                    <span class="btn-label">Predict</span>
+                </button>
+                <button class="image-btn-base" id="btn2" onclick="window.location.href='quiz/quiz.html'">
+                    <img src="btn.png" alt="" style="width: 100%; height: auto;">
+                    <span class="btn-label">Quiz</span>
+                </button>
+                <button class="image-btn-base" id="btn3" onclick="window.location.href='memo/memo.html'">
+                    <img src="btn.png" alt="" style="width: 100%; height: auto;">
+                    <span class="btn-label">Memo</span>
+                </button>
+            </div>
+
+            <!-- Bottom Row: btn1, btn4 -->
+            <div class="btn-group-row row-bottom">
+                <button class="image-btn-base" id="btn1">
+                    <img src="btn.png" alt="" style="width: 100%; height: auto;">
+                    <span class="btn-label">Card</span>
+                </button>
+                <button class="image-btn-base" id="btn4">
+                    <img src="btn.png" alt="" style="width: 100%; height: auto;">
+                    <span class="btn-label">Picture</span>
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>

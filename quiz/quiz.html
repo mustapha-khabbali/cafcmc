@@ -278,7 +278,19 @@
     </style>
 </head>
 <body>
-
+ <a href="../index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <style>
+        .home-btn {
+            width: 80px;
+            transition: transform 0.3s, filter 0.3s;
+        }
+        .home-btn:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
+        }
+    </style>
+    <img src="home.png" alt="Home" class="home-btn">
+</a>
     <div id="sidebar">
         <h1 style="text-align: center; color: var(--gold); margin-top: 5;">TOP SCORES</h1>
         <ul id="leaderboard-list"></ul>

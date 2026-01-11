@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEMO</title>
-    <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="icon" type="image/webp" href="./favicon.webp">
     <style>
         :root { 
             --morocco-red: #c1272d; 
@@ -27,7 +27,7 @@
         #main-container { 
             width: 100vw;
             height: 100vh;
-            background-image: url('d.png');
+            background-image: url('d.webp');
             background-size: cover;
             background-position: center; 
             display: flex; 
@@ -77,7 +77,7 @@
         }
 
         .card-back {
-            background-image: url('back.png');
+            background-image: url('back.webp');
             background-color: var(--morocco-red);
             border: none;
         }
@@ -93,7 +93,7 @@
         }
 
         .modal-content { 
-            background-image: url('feed.png');
+            background-image: url('feed.webp');
             background-size: 100% 100%;
             background-color: transparent;
             background-repeat: no-repeat;
@@ -114,7 +114,7 @@
         .continue-btn {
             width: 280px; 
             height: 80px; 
-            background: url('b.png') no-repeat center center;
+            background: url('b.webp') no-repeat center center;
             background-size: 100% 100%;
             background-color: transparent;
             border: none;
@@ -144,7 +144,7 @@
             filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
         }
     </style>
-    <img src="HOME.png" alt="Home" class="home-btn">
+    <img src="HOME.webp" alt="Home" class="home-btn">
 </a>
 
 
@@ -192,7 +192,7 @@
             const cardWidth = `${Math.floor(85 / stage.cols)}vw`;
             const numSets = stage.total / stage.match;
             
-            let imagePool = Array.from({length: 30}, (_, i) => `${i + 1}.png`);
+            let imagePool = Array.from({length: 30}, (_, i) => `${i + 1}.webp`);
             imagePool.sort(() => Math.random() - 0.5);
             const selectedImages = imagePool.slice(0, numSets);
 

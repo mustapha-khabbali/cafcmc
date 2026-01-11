@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QUIZ</title>
-     <link rel="icon" type="image/png" href="./favicon.png">
+     <link rel="icon" type="image/webp" href="./favicon.webp">
     <style>
         :root { 
             --morocco-red: #c1272d; 
@@ -12,7 +12,7 @@
             --gold: #ffcc00; 
             --hud-height: 120px;
             /* Precise calculation based on original dimensions:
-               y.png = 1330px, x.png = 4643px. Total = 5973px.
+               y.webp = 1330px, x.webp = 4643px. Total = 5973px.
                Sidebar % = (1330 / 5973) * 100 ≈ 22.2668%
                Main % = (4643 / 5973) * 100 ≈ 77.7332%
             */
@@ -33,12 +33,12 @@
             overflow: hidden; 
         }
 
-        /* Sidebar: Uses y.png anchored to the top */
+        /* Sidebar: Uses y.webp anchored to the top */
         #sidebar { 
             width: var(--sidebar-width); 
             height: 100%;
-            /* Half-black transparent overlay + y.png background */
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('y.png');
+            /* Half-black transparent overlay + y.webp background */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('y.webp');
             background-size: cover; 
             background-position: center top; 
             background-repeat: no-repeat;
@@ -52,11 +52,11 @@
             position: relative;
         }
         
-        /* Main Container: Uses x.png anchored to the top */
+        /* Main Container: Uses x.webp anchored to the top */
         #main-container { 
             width: var(--main-width);
             height: 100%;
-            background-image: url('x.png');
+            background-image: url('x.webp');
             background-size: cover;
             background-position: center top; 
             background-repeat: no-repeat;
@@ -70,7 +70,7 @@
         body.game-active #sidebar { display: none; }
         body.game-active #main-container { 
             width: 100vw; 
-            background-image: url('d.png');
+            background-image: url('d.webp');
             background-size: cover;
             background-position: center top;
         }
@@ -78,7 +78,7 @@
         #leaderboard-list { list-style: none; padding: 0; }
         
         #leaderboard-list li { 
-            background: url('c.png') no-repeat center center;
+            background: url('c.webp') no-repeat center center;
             background-size: 100% 100%; 
             margin-bottom: 8px; 
             padding: 15px 35px 15px 20px; 
@@ -113,14 +113,14 @@
         }
         .inv-slot.active { opacity: 1; border-color: var(--gold); box-shadow: 0 0 15px var(--gold); }
 
-        .card-red { background-image: url('card-red.png'); }
-        .card-shield { background-image: url('card-shield.png'); }
-        .card-ultra { background-image: url('card-ultra.png'); }
-        .card-plus { background-image: url('card-plus.png'); }
-        .card-minus { background-image: url('card-minus.png'); }
-        .card-x2 { background-image: url('card-x2.png'); }
-        .card-x0 { background-image: url('card-x0.png'); }
-        .card-phone { background-image: url('card-phone.png'); }
+        .card-red { background-image: url('card-red.webp'); }
+        .card-shield { background-image: url('card-shield.webp'); }
+        .card-ultra { background-image: url('card-ultra.webp'); }
+        .card-plus { background-image: url('card-plus.webp'); }
+        .card-minus { background-image: url('card-minus.webp'); }
+        .card-x2 { background-image: url('card-x2.webp'); }
+        .card-x0 { background-image: url('card-x0.webp'); }
+        .card-phone { background-image: url('card-phone.webp'); }
 
         #game-board { 
             display: none; 
@@ -146,7 +146,7 @@
             transition: transform 0.6s; 
             transform-style: preserve-3d;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            background-image: url('back.png'); 
+            background-image: url('back.webp'); 
             background-size: 100% 100%; 
             background-position: center;
         }
@@ -172,7 +172,7 @@
         .play-btn { 
             width: 300px; 
             height: 85px; 
-            background: url('b.png') no-repeat center center;
+            background: url('b.webp') no-repeat center center;
             background-size: contain;
             background-color: transparent;
             border: none;
@@ -229,7 +229,7 @@
         
         .ans-btn { 
             width: 100%; aspect-ratio: 3688 / 672;
-            background: url('g.png') no-repeat center center;
+            background: url('g.webp') no-repeat center center;
             background-size: 100% 100%; background-color: transparent;
             border: none; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
@@ -240,7 +240,7 @@
         
         .ans-btn:hover { 
             transform: scale(1.02); filter: brightness(1.2);
-            background: url('f.png') no-repeat center center;
+            background: url('f.webp') no-repeat center center;
             background-size: 100% 100%;
         }
 
@@ -293,7 +293,7 @@
             filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
         }
     </style>
-    <img src="HOME.png" alt="Home" class="home-btn">
+    <img src="HOME.webp" alt="Home" class="home-btn">
 </a>
     <div id="sidebar">
         <h1 style="text-align: center; color: var(--gold); margin-top: 5;">TOP SCORES</h1>
@@ -537,17 +537,17 @@
             modalBody.style.width = '90vw';
             modalBody.style.maxWidth = '900px';
             if (type === 'question') {
-                modalBody.style.backgroundImage = "url('e.png')";
+                modalBody.style.backgroundImage = "url('e.webp')";
                 modalBody.style.aspectRatio = "3750 / 1580";
             } else if (type === 'bravo') {
-                modalBody.style.backgroundImage = "url('bravo.png')";
+                modalBody.style.backgroundImage = "url('bravo.webp')";
                 modalBody.style.aspectRatio = "6000 / 3375";
                 modalBody.style.maxWidth = '1100px';
             } else if (type === 'over') {
-                modalBody.style.backgroundImage = "url('over.png')";
+                modalBody.style.backgroundImage = "url('over.webp')";
                 modalBody.style.aspectRatio = "16 / 9"; 
             } else if (type === 'feed') {
-                modalBody.style.backgroundImage = "url('feed.png')";
+                modalBody.style.backgroundImage = "url('feed.webp')";
                 modalBody.style.aspectRatio = "16 / 9"; 
             }
         }

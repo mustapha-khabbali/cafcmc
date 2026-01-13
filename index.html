@@ -271,7 +271,7 @@ Interactive games, brainstormed in the FabLab and CoP at CMC BMK, highlight our 
 dedication to the spectacle our country knows.
             </p>
 
-            <!-- Top Row: btn, btn2, btn3 -->
+           <!-- Top Row: btn (Predict), btn2 (Quiz) -->
             <div class="btn-group-row row-top">
                 <button class="image-btn-base" id="btn" onclick="window.location.href='predict/predict.html'">
                     <img src="btn.webp" alt="" style="width: 100%; height: auto;">
@@ -281,23 +281,19 @@ dedication to the spectacle our country knows.
                     <img src="btn.webp" alt="" style="width: 100%; height: auto;">
                     <span class="btn-label">Quiz</span>
                 </button>
-               <button class="image-btn-base" id="btn4" onclick="window.location.href='memo/memo.html'">
-                    <img src="btn.webp" alt="" style="width: 100%; height: auto;">
-                    <span class="btn-label">Memo</span>
-                </button>
             </div>
 
-            <!-- Bottom Row: btn1, btn4 -->
+            <!-- Bottom Row: btn1 (Card), btn4 (Memo) -->
             <div class="btn-group-row row-bottom">
-                <button class="image-btn-base" id="btn1">
+                <button class="image-btn-base" id="btn1" onclick="document.getElementById('card-section').scrollIntoView({behavior: 'smooth'})">
                     <img src="btn.webp" alt="" style="width: 100%; height: auto;">
                     <span class="btn-label">Card</span>
                 </button>
                 
-                 <!--<button class="image-btn-base" id="btn4" onclick="window.location.href='memo/memo.html>
+                <button class="image-btn-base" id="btn4" onclick="window.location.href='memo/memo.html'">
                     <img src="btn.webp" alt="" style="width: 100%; height: auto;">
                     <span class="btn-label">Memo</span>
-                </button>-->
+                </button>
             </div>
 
         </div>

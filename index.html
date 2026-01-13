@@ -164,6 +164,14 @@
             background: none;
             padding: 0;
             position: relative; /* Necessary for centering the label */
+            /* GPU Acceleration hack for smoother hover */
+            backface-visibility: hidden;
+            /* FIX: Removes the default mobile tap rectangle/highlight */
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            outline: none;
         }
 
         .image-btn-base {

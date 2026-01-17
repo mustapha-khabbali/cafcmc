@@ -8,6 +8,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Chargement des polices personnalisées */
+        @font-face {
+            font-family: 'AFCON';
+            src: url('LIVE.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'sald';
+            src: url('sald.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         body {
             background-color: #801416;
             background-image: url('a.webp');
@@ -16,18 +30,106 @@
             background-attachment: fixed;
             color: white;
             margin: 0;
-            font-family: sans-serif;
+            font-family: 'AFCON', sans-serif;
             overflow-x: hidden;
         }
 
-        .score-capsule {
-            background: linear-gradient(to right, #911a1d, #b91c1c);
-            border-bottom-right-radius: 50px;
-            border-top-left-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            border-bottom: 2px solid #ef4444;
+        /* Styles de la Bannière Épurée intégrés */
+        .custom-rectangle {
+            width: 850px;
+            height: 97px;
+            background-color: #620100;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: visible; 
+            position: relative;
+            border: none;
+        }
+        
+        .side-image-left {
+            height: 99px; 
+            width: auto;
+            object-fit: contain;
+            display: block;
+            z-index: 10;
+            transform: translateX(-70%);
+            flex-shrink: 0;
+            /* Ajout de l'effet d'ombre */
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
         }
 
+        .side-image-right {
+            height: 99px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            z-index: 10;
+            transform: translateX(70%);
+            flex-shrink: 0;
+            /* Ajout de l'effet d'ombre */
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+        }
+
+        .center-image {
+            height: 75%;
+            width: auto;
+            object-fit: contain;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            /* Ajout de l'effet d'ombre */
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
+        }
+
+        .number-text {
+            font-family: 'sald', sans-serif;
+            position: absolute;
+            top: 0; 
+            height: 100%; 
+            width: 65px; 
+            background-color: white; 
+            color: #620100; 
+            font-weight: 900;
+            font-size: 70px;
+            z-index: 6;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            left: 50%;
+            transform: translateX(-50%);
+            padding-top: 11px;
+        }
+
+        .number-left { margin-left: -65px; }
+        .number-right { margin-left: 65px; }
+
+        .country-label {
+            position: absolute;
+            top: 50%;
+            color: white;
+            font-family: 'AFCON', sans-serif;
+            font-size: 37px;
+            letter-spacing: 1px;
+            z-index: 4;
+            text-transform: uppercase;
+            pointer-events: none;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .label-morocco { margin-left: -230px; }
+        .label-senegal { margin-left: 230px; }
+
+        /* Styles spécifiques au Dashboard */
         .mascot-container {
             position: fixed;
             bottom: 5px;
@@ -59,11 +161,7 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-    </style>
-</head>
-<body>
-       <a href="../index.html" style="position: fixed; bottom: 140px; left: 120px; z-index: 1000;">
-    <style>
+
         .home-btn {
             width: 80px;
             transition: transform 0.3s, filter 0.3s;
@@ -72,8 +170,22 @@
             transform: scale(1.1);
             filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
         }
+
+        .placeholder-box {
+            background-color: rgba(0,0,0,0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
     </style>
-    <img src="HOME.webp" alt="Home" class="home-btn">
+</head>
+<body>
+    <a href="../index.html" style="position: fixed; bottom: 140px; left: 120px; z-index: 1000;">
+        <img src="HOME.webp" alt="Home" class="home-btn">
     </a>
 
     <div id="notification" class="bg-yellow-500 text-black font-bold shadow-2xl"></div>
@@ -84,30 +196,32 @@
 
     <main class="max-w-6xl mx-auto p-6 relative mt-[-40px]">
         
-        <!-- Score Section -->
+        <!-- Score Section (Symmetric Banner Integrated) -->
         <div class="flex justify-center mb-10">
-            <div class="score-capsule flex items-center justify-between px-12 py-0 w-full max-w-[850px]" 
-                 style="background-color: #b11f24; border-top-right-radius: 65px; border-bottom-right-radius: 0; border-top-left-radius: 4px; border-bottom-left-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);">
+            <div class="custom-rectangle rounded-sm">
+                <!-- Image Gauche (Maroc) -->
+                <img src="mar.webp" alt="mar.webp" class="side-image-left"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterbegin', '<div class=\'side-image-left h-full w-[150px] placeholder-box\'>mar.webp</div>')">
                 
-                <div class="flex items-center gap-5">
-                    <span style="font-family: 'League Spartan', sans-serif; font-weight: 900; color: white; text-transform: uppercase; font-size: 1.875rem; letter-spacing: -0.05em;">Morocco</span>
-                    <div style="background-color: white; padding: 2px; display: flex; align-items: center; justify-content: center; width: 85px; height: 50px; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);">
-                        <img src="https://flagcdn.com/w160/ma.webp" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);" alt="Maroc">
-                    </div> 
-                </div>
-                
-                <div class="flex items-center gap-4" style="font-family: 'League Spartan', sans-serif; font-weight: 900; color: white; font-size: 3.75rem;">
-                    <span id="avgA">0</span>
-                    <span style="opacity: 0.6; font-size: 2rem; margin-top: 4px;">-</span>
-                    <span id="avgB">0</span>
-                </div>
+                <!-- Texte Maroc -->
+                <span class="country-label label-morocco">Morocco</span>
 
-                <div class="flex items-center gap-5">
-                    <div style="background-color: white; padding: 2px; display: flex; align-items: center; justify-content: center; width: 85px; height: 50px; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);">
-                        <img src="https://flagcdn.com/w160/sn.webp" style="width: 100%; height: 100%; object-fit: cover; clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);" alt="senegal">
-                    </div>
-                    <span style="font-family: 'League Spartan', sans-serif; font-weight: 900; color: white; text-transform: uppercase; font-size: 1.875rem; letter-spacing: -0.05em;">Senegal</span>
-                </div>
+                <!-- Pilier 0 -->
+                <span class="number-text number-left" id="avgA">0</span>
+
+                <!-- Image Centre -->
+                <img src="cafi.webp" alt="cafi.webp" class="center-image"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend', '<div class=\'center-image h-[80%] w-[40px] placeholder-box\'>cafi</div>')">
+
+                <!-- Pilier 1 -->
+                <span class="number-text number-right" id="avgB">0</span>
+
+                <!-- Texte Sénégal -->
+                <span class="country-label label-senegal">Senegal</span>
+
+                <!-- Image Droite (Sénégal) -->
+                <img src="sngl.webp" alt="sngl.webp" class="side-image-right"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend', '<div class=\'side-image-right h-full w-[150px] placeholder-box\'>sngl.webp</div>')">
             </div>
         </div>
 
@@ -155,11 +269,9 @@
 
     <script>
     const predictions = [];
-    // Initial state set to 0-0 until data is entered
     let currentAverageA = 0;
     let currentAverageB = 0;
 
-    // --- CHART SETUP ---
     const ctx = document.getElementById('accuracyChart').getContext('2d');
     const accuracyChart = new Chart(ctx, {
         type: 'line',
@@ -196,13 +308,8 @@
         const sB = parseInt(document.getElementById('scoreB').value) || 0;
 
         if (!name) return showToast("Please enter your name!");
-
-        // Add to list
         predictions.push({ name, sA, sB, accuracy: 0 });
-        
-        // Update the "sum and divided" logic in the background
         updateAverages();
-        
         nameInput.value = ''; 
         showToast(`Prediction added!`);
     }
@@ -215,19 +322,13 @@
         if (count > 0) {
             const sumA = predictions.reduce((sum, p) => sum + p.sA, 0);
             const sumB = predictions.reduce((sum, p) => sum + p.sB, 0);
-
             currentAverageA = Math.round(sumA / count);
             currentAverageB = Math.round(sumB / count);
-
-            // Update UI
             avgAElem.innerText = currentAverageA;
             avgBElem.innerText = currentAverageB;
         }
 
-        // Refresh all rankings based on new average
         updateLeaderboardUI();
-        
-        // Add last person to chart
         const last = predictions[predictions.length - 1];
         if (last) {
             updateChart(last.name, calculateAccuracy(last.sA, last.sB));
@@ -237,14 +338,8 @@
     function updateLeaderboardUI() {
         const container = document.getElementById('leaderboard');
         container.innerHTML = ''; 
-
-        // Re-calculate accuracy for everyone against the NEW average
-        predictions.forEach(p => {
-            p.accuracy = calculateAccuracy(p.sA, p.sB);
-        });
-
+        predictions.forEach(p => { p.accuracy = calculateAccuracy(p.sA, p.sB); });
         const sorted = [...predictions].sort((a, b) => b.accuracy - a.accuracy);
-
         sorted.forEach(p => {
             const card = document.createElement('div');
             card.className = "bg-green-900/80 p-4 rounded-xl border-t-4 border-yellow-500 text-center shadow-xl backdrop-blur-sm transform transition hover:scale-105";      

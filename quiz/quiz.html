@@ -385,7 +385,7 @@
             {q: "حارس مرمى فاز بجائزة 'زامورا' الإسبانية؟", a: ["منير المحمدي", "الزاكي", "التكناوتي", "ياسين بونو"], c: [3]},
             {q: "أول فريق مغربي يفوز بدوري أبطال إفريقيا (1985)؟", a: ["الوداد", "الرجاء", "الماص", "الجيش الملكي"], c: [3]},
             {q: "سنة تأهل المغرب للدور الثاني بالمونديال لأول مرة؟", a: ["1994", "1986", "1998", "2022"], c: [1]},
-            {q: "المنتخب الذي واجهه المغرب في دور الـ16 (1986)؟", a: ["ألمانيا الغربية", "إنجلترا", "البرتغال", "بولندا"], c: [0]},
+            {q: "المنتخب الذي واجهه المغرب في دور الـ16 (1986)؟", a: ["ألماينا الغربية", "إنجلترا", "البرتغال", "بولندا"], c: [0]},
             {q: "كم هدفًا سجل حمد الله ليكسر الرقم القياسي التاريخي للدوري السعودي؟", a: ["20 هدفاً", "34 هدفاً", "25 هدفاً", "30 هدفاً"], c: [1]},
             {q: "لعبت للريال، دورتموند، إنتر وباريس، من أنا؟", a: ["زياش", "بنعطية", "أشرف حكيمي", "حارث"], c: [2]},
             {q: "الملعب الكبير الذي يقع في طنجة؟", a: ["أدرار", "فاس", "مولاي عبد الله", "ابن بطوطة"], c: [3]},
@@ -429,6 +429,7 @@
         const audioWin = new Audio('https://www.soundjay.com/human/sounds/applause-01.mp3');
         const audioStart = new Audio('Referee_Whistle.mp3');
         const audioTick = new Audio('Clock_Ticking.mp3');
+        const audioDima = new Audio('dima.mp3'); // Added Dima audio
 
         let score = 0, playerName = "", shields = 0, ultraJokerLives = 0, phoneStock = 0;
         let questionTimer;
@@ -451,14 +452,11 @@
             warning.style.display = 'none';
             document.getElementById('username').style.borderColor = 'var(--gold)';
             
-            // Re-initialize available questions from master list
             availableQuestions = [...questions];
 
-            // Secret mode: youth5.0 or 7i9o
             if(playerName === "youth5.0" || playerName === "7i9o") {
                 isYouthMode = true;
                 score = 96;
-                // Limit the total pool to 4 questions so the game ends after 4 cards
                 availableQuestions = availableQuestions.sort(() => 0.5 - Math.random()).slice(0, 4);
             } else {
                 isYouthMode = false;
@@ -481,7 +479,6 @@
             const board = document.getElementById('game-board');
             board.innerHTML = '';
 
-            // This is the win condition check
             if (availableQuestions.length === 0) { 
                 showVictoryScreen(); 
                 return; 
@@ -491,13 +488,8 @@
             const totalCards = 27;
 
             if(isYouthMode) {
-                // Take the 4 questions we limited in startGame
                 let activeQs = availableQuestions.splice(0, 4);
-                
-                // Pack active cards
                 activeQs.forEach(q => deck.push({type: 'trivia', data: q, preFlipped: false}));
-                
-                // Pack pre-flipped placeholder cards
                 for(let i=0; i < (totalCards - 4); i++) {
                     deck.push({type: 'trivia', data: {}, preFlipped: true});
                 }
@@ -631,13 +623,19 @@
         }
 
         function showVictoryScreen() {
-            audioWin.currentTime = 0; audioWin.play();
+            // Play your specific audio file for victory
+            audioDima.currentTime = 0; 
+            audioDima.play().catch(e => {
+                console.log("Dima.mp3 play failed, falling back to applause:", e);
+                audioWin.play();
+            });
+
             setModalStyle('feed');
             const modal = document.getElementById('modal-overlay');
             modal.style.display = 'flex';
             document.getElementById('modal-body').innerHTML = `
-                <h2 style="font-size: 2.5rem; margin:0;">CONGRATULATIONS!</h2>
-                <h3 style="font-size: 1.5rem; margin: 20px 0;">what a super zlayji wa9ef 9edami daba</h3>
+                <h2 style="font-size: 2.5rem; margin:0;color: gold">CONGRATULATIONS!</h2>
+                <h3 style="font-size: 1.5rem; margin: 20px 0;">what a super zlayji <br> wa9ef 9edami daba</h3>
                 <button class="modal-action-btn" onclick="resetGame()">RESTART</button>
             `;
         }
@@ -658,10 +656,8 @@
 
         function closeModal() {
             document.getElementById('modal-overlay').style.display = 'none';
-            // Count cards that haven't been flipped yet
             const remaining = document.querySelectorAll('.card:not(.flipped)').length;
             if (remaining === 0) { 
-                // All cards on current grid finished, try to load next set or win screen
                 setTimeout(initGrid, 500); 
             }
         }

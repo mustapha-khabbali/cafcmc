@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction</title>
-     <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="icon" type="image/png" href="./favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -56,8 +56,13 @@
             z-index: 10;
             transform: translateX(-70%);
             flex-shrink: 0;
-            /* Ajout de l'effet d'ombre */
             filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .side-image-left:hover {
+            transform: translateX(-70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
         }
 
         .side-image-right {
@@ -68,8 +73,13 @@
             z-index: 10;
             transform: translateX(70%);
             flex-shrink: 0;
-            /* Ajout de l'effet d'ombre */
             filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .side-image-right:hover {
+            transform: translateX(70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
         }
 
         .center-image {
@@ -81,7 +91,6 @@
             top: 50%;
             transform: translate(-50%, -50%);
             z-index: 5;
-            /* Ajout de l'effet d'ombre */
             filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
         }
 
@@ -181,6 +190,29 @@
             text-transform: uppercase;
             font-weight: bold;
         }
+
+        /* Modal Styles */
+        #teamModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+        .team-option {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .team-option:hover {
+            transform: scale(1.1);
+            border-color: #fbbf24;
+            background: rgba(255,255,255,0.1);
+            filter: drop-shadow(0 0 15px #fbbf24);
+        }
     </style>
 </head>
 <body>
@@ -189,6 +221,31 @@
     </a>
 
     <div id="notification" class="bg-yellow-500 text-black font-bold shadow-2xl"></div>
+
+    <!-- Team Selection Modal -->
+    <div id="teamModal" onclick="closeModal()">
+        <div class="bg-[#620100] p-8 rounded-2xl border border-yellow-500/50 max-w-lg w-full mx-4" onclick="event.stopPropagation()">
+            <h2 class="text-2xl font-bold mb-6 text-center text-yellow-500">CHOOSE A TEAM</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('MOR')">
+                    <img src="mar.webp" alt="Morocco" class="h-16 mx-auto mb-2 object-contain">
+                    <p class="font-bold">MOROCCO</p>
+                </div>
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('SEN')">
+                    <img src="sngl.webp" alt="Senegal" class="h-16 mx-auto mb-2 object-contain">
+                    <p class="font-bold">SENEGAL</p>
+                </div>
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('NIG')">
+                    <img src="nig.webp" alt="Nigeria" class="h-16 mx-auto mb-2 object-contain">
+                    <p class="font-bold">NIGERIA</p>
+                </div>
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('EGY')">
+                    <img src="egy.webp" alt="Egypt" class="h-16 mx-auto mb-2 object-contain">
+                    <p class="font-bold">EGYPT</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <header class="w-full flex justify-center items-center py-4 bg-transparent">
         <img src="b.webp" alt="Header Logos" style="width: 40%;" class="h-auto block">
@@ -199,12 +256,12 @@
         <!-- Score Section (Symmetric Banner Integrated) -->
         <div class="flex justify-center mb-10">
             <div class="custom-rectangle rounded-sm">
-                <!-- Image Gauche (Maroc) -->
-                <img src="mar.webp" alt="mar.webp" class="side-image-left"
-                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterbegin', '<div class=\'side-image-left h-full w-[150px] placeholder-box\'>mar.webp</div>')">
+                <!-- Image Gauche -->
+                <img id="flagA" src="mar.webp" alt="Team A" class="side-image-left" onclick="openModal('A')"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterbegin', '<div class=\'side-image-left h-full w-[150px] placeholder-box\'>Team A</div>')">
                 
-                <!-- Texte Maroc -->
-                <span class="country-label label-morocco">Morocco</span>
+                <!-- Texte Team A -->
+                <span id="nameA" class="country-label label-morocco">Morocco</span>
 
                 <!-- Pilier 0 -->
                 <span class="number-text number-left" id="avgA">0</span>
@@ -216,12 +273,12 @@
                 <!-- Pilier 1 -->
                 <span class="number-text number-right" id="avgB">0</span>
 
-                <!-- Texte Sénégal -->
-                <span class="country-label label-senegal">Senegal</span>
+                <!-- Texte Team B -->
+                <span id="nameB" class="country-label label-senegal">Senegal</span>
 
-                <!-- Image Droite (Sénégal) -->
-                <img src="sngl.webp" alt="sngl.webp" class="side-image-right"
-                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend', '<div class=\'side-image-right h-full w-[150px] placeholder-box\'>sngl.webp</div>')">
+                <!-- Image Droite -->
+                <img id="flagB" src="sngl.webp" alt="Team B" class="side-image-right" onclick="openModal('B')"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend', '<div class=\'side-image-right h-full w-[150px] placeholder-box\'>Team B</div>')">
             </div>
         </div>
 
@@ -234,11 +291,11 @@
                     
                     <div class="flex gap-4">
                         <div class="flex-1">
-                            <label class="block text-xs mb-1 text-gray-400 uppercase font-bold">MAR Score</label>
+                            <label id="labelA" class="block text-xs mb-1 text-gray-400 uppercase font-bold">MOR Score</label>
                             <input type="number" id="scoreA" class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 outline-none" value="0" min="0">
                         </div>
                         <div class="flex-1">
-                            <label class="block text-xs mb-1 text-gray-400 uppercase font-bold">SEN Score</label>
+                            <label id="labelB" class="block text-xs mb-1 text-gray-400 uppercase font-bold">SEN Score</label>
                             <input type="number" id="scoreB" class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 outline-none" value="0" min="0">
                         </div>
                     </div>
@@ -271,6 +328,75 @@
     const predictions = [];
     let currentAverageA = 0;
     let currentAverageB = 0;
+    
+    // Selection state
+    let targetSide = 'A';
+    const teamData = {
+        'MOR': { name: 'Morocco', img: 'mar.webp', code: 'MOR' },
+        'SEN': { name: 'Senegal', img: 'sngl.webp', code: 'SEN' },
+        'NIG': { name: 'Nigeria', img: 'nig.webp', code: 'NIG' },
+        'EGY': { name: 'Egypt', img: 'egy.webp', code: 'EGY' }
+    };
+
+    
+    /**
+     * Helper to handle font switching specifically for digit '4'
+     * Since 'sald' font doesn't support '4', we wrap just that digit in a span using 'AFCON'
+     * and nudge it noticeably higher (top: -22px) for alignment.
+     */
+    function setScoreDisplay(id, val) {
+        const el = document.getElementById(id);
+        const strVal = String(val);
+        let finalHTML = "";
+        
+        for (let char of strVal) {
+            if (char === '4') {
+                finalHTML += `<span style="font-family: 'AFCON', sans-serif; position: relative; top: -7px;">4</span>`;
+            } else {
+                finalHTML += char;
+            }
+        }
+        el.innerHTML = finalHTML;
+    }
+
+    function openModal(side) {
+        targetSide = side;
+        document.getElementById('teamModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('teamModal').style.display = 'none';
+    }
+
+    function selectTeam(code) {
+        const team = teamData[code];
+        if (targetSide === 'A') {
+            document.getElementById('flagA').src = team.img;
+            document.getElementById('nameA').innerText = team.name;
+            document.getElementById('labelA').innerText = `${team.code} Score`;
+        } else {
+            document.getElementById('flagB').src = team.img;
+            document.getElementById('nameB').innerText = team.name;
+            document.getElementById('labelB').innerText = `${team.code} Score`;
+        }
+        
+        // Reset Logic: Clear all current data when a team changes
+        predictions.length = 0; 
+        currentAverageA = 0;
+        currentAverageB = 0;
+        setScoreDisplay('avgA', 0);
+        setScoreDisplay('avgB', 0);
+        
+        // Clear chart
+        accuracyChart.data.datasets = [];
+        accuracyChart.update();
+        
+        // Update leaderboard (will be empty)
+        updateLeaderboardUI();
+        
+        showToast("Team changed: All predictions reset.");
+        closeModal();
+    }
 
     const ctx = document.getElementById('accuracyChart').getContext('2d');
     const accuracyChart = new Chart(ctx, {
@@ -316,16 +442,13 @@
 
     function updateAverages() {
         const count = predictions.length;
-        const avgAElem = document.getElementById('avgA');
-        const avgBElem = document.getElementById('avgB');
-
         if (count > 0) {
             const sumA = predictions.reduce((sum, p) => sum + p.sA, 0);
             const sumB = predictions.reduce((sum, p) => sum + p.sB, 0);
             currentAverageA = Math.round(sumA / count);
             currentAverageB = Math.round(sumB / count);
-            avgAElem.innerText = currentAverageA;
-            avgBElem.innerText = currentAverageB;
+            setScoreDisplay('avgA', currentAverageA);
+            setScoreDisplay('avgB', currentAverageB);
         }
 
         updateLeaderboardUI();

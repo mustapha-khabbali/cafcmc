@@ -130,11 +130,14 @@
         }
         
         .continue-btn:hover { transform: scale(1.05); }
-    </style>
-</head>
-<body>
-     <a href="../index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-    <style>
+
+        .home-btn-container {
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            z-index: 1000;
+        }
+
         .home-btn {
             width: 80px;
             transition: transform 0.3s, filter 0.3s;
@@ -144,9 +147,11 @@
             filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
         }
     </style>
-    <img src="HOME.webp" alt="Home" class="home-btn">
-</a>
-
+</head>
+<body>
+    <a href="../index.html" class="home-btn-container">
+        <img src="HOME.webp" alt="Home" class="home-btn">
+    </a>
 
     <div id="main-container">
         <div id="game-board"></div>
@@ -176,7 +181,8 @@
 
         const audioFlip = new Audio('https://www.soundjay.com/misc/sounds/swish-2.mp3');
         const audioMatch = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-02.mp3');
-        const audioWin = new Audio('https://www.soundjay.com/human/sounds/applause-01.mp3');
+        // A cuter, sparklier "Well Done" sound effect
+        const audioChampion = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-06.mp3');
 
         function loadStage() {
             const stage = STAGES[currentStageIdx];
@@ -259,6 +265,7 @@
 
             setTimeout(() => {
                 if (isMatch) {
+                    audioMatch.currentTime = 0;
                     audioMatch.play();
                     flippedCards.forEach(c => c.classList.add('matched'));
                     matchesFound++;
@@ -283,8 +290,11 @@
 
             overlay.style.display = 'flex';
 
+            // Play the "cute" sparkly champion sound
+            audioChampion.currentTime = 0;
+            audioChampion.play();
+
             if (isLastStage) {
-                audioWin.play();
                 title.innerText = "CHAMPION!";
                 text.innerText = "SAFI SALITY GA3 LES CARTES";
                 btn.innerText = "RESTART";

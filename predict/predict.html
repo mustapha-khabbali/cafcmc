@@ -338,11 +338,8 @@
         'EGY': { name: 'Egypt', img: 'egy.webp', code: 'EGY' }
     };
 
-    
     /**
      * Helper to handle font switching specifically for digit '4'
-     * Since 'sald' font doesn't support '4', we wrap just that digit in a span using 'AFCON'
-     * and nudge it noticeably higher (top: -22px) for alignment.
      */
     function setScoreDisplay(id, val) {
         const el = document.getElementById(id);
@@ -370,6 +367,15 @@
 
     function selectTeam(code) {
         const team = teamData[code];
+        
+        // Validation: User shouldn't choose the same team against each other
+        const otherSide = (targetSide === 'A') ? 'B' : 'A';
+        const currentOpponent = document.getElementById(`name${otherSide}`).innerText;
+        
+        if (team.name.toUpperCase() === currentOpponent.toUpperCase()) {
+            return showToast("Teams must be different!");
+        }
+
         if (targetSide === 'A') {
             document.getElementById('flagA').src = team.img;
             document.getElementById('nameA').innerText = team.name;
@@ -391,10 +397,10 @@
         accuracyChart.data.datasets = [];
         accuracyChart.update();
         
-        // Update leaderboard (will be empty)
+        // Update leaderboard
         updateLeaderboardUI();
         
-        showToast("Team changed: All predictions reset.");
+        showToast("Teams updated: Predictions reset.");
         closeModal();
     }
 
@@ -430,10 +436,19 @@
     function addPrediction() {
         const nameInput = document.getElementById('userName');
         const name = nameInput.value.trim();
-        const sA = parseInt(document.getElementById('scoreA').value) || 0;
-        const sB = parseInt(document.getElementById('scoreB').value) || 0;
+        const scoreAVal = document.getElementById('scoreA').value;
+        const scoreBVal = document.getElementById('scoreB').value;
+        
+        const sA = parseInt(scoreAVal);
+        const sB = parseInt(scoreBVal);
 
         if (!name) return showToast("Please enter your name!");
+        
+        // Validation: negative numbers are not allowed
+        if (sA < 0 || sB < 0) {
+            return showToast("Negative numbers are not allowed!");
+        }
+
         predictions.push({ name, sA, sB, accuracy: 0 });
         updateAverages();
         nameInput.value = ''; 

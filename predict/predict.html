@@ -5,278 +5,581 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction</title>
     <link rel="icon" type="image/png" href="./favicon.png">
-    
-    <!-- Preload critical background images -->
-    <link rel="preload" as="image" href="a.webp">
-    
-    <!-- Defer heavy scripts so they don't block page rendering -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Chargement des polices personnalisées */
         @font-face {
             font-family: 'AFCON';
             src: url('LIVE.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
-            font-display: swap; /* Fixes blank text during load */
         }
         @font-face {
             font-family: 'sald';
             src: url('sald.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
-            font-display: swap;
         }
 
         body {
-            background: #801416 url('a.webp') no-repeat center center fixed;
+            background-color: #801416;
+            background-image: url('a.webp');
             background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: white;
             margin: 0;
             font-family: 'AFCON', sans-serif;
             overflow-x: hidden;
         }
 
+        /* Responsive Background for Mobile */
         @media (max-width: 768px) {
-            body { background-image: url('z.webp'); }
+            body {
+                background-image: url('z.webp');
+                background-size: cover; 
+            }
         }
 
-        /* Optimized Transitions: 0.9s was too slow, 0.3s is snappy */
-        .side-image-left, .side-image-right, .home-btn, .team-option {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-
+        /* Styles de la Bannière Épurée intégrés */
         .custom-rectangle {
             width: 850px;
             height: 97px;
             background-color: #620100;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            overflow: visible; 
             position: relative;
+            border: none;
         }
         
-        .side-image-left { transform: translateX(-70%); z-index: 10; height: 99px; }
-        .side-image-right { transform: translateX(70%); z-index: 10; height: 99px; }
+        .side-image-left {
+            height: 99px; 
+            width: auto;
+            object-fit: contain;
+            display: block;
+            z-index: 10;
+            transform: translateX(-70%);
+            flex-shrink: 0;
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .side-image-left:hover {
+            transform: translateX(-70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
+        }
 
-        .side-image-left:hover { transform: translateX(-70%) scale(1.1); filter: brightness(1.2); }
-        .side-image-right:hover { transform: translateX(70%) scale(1.1); filter: brightness(1.2); }
+        .side-image-right {
+            height: 99px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            z-index: 10;
+            transform: translateX(70%);
+            flex-shrink: 0;
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .side-image-right:hover {
+            transform: translateX(70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
+        }
+        .side-image-left:hover {
+            transform: translateX(-70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
+        }
+        .side-image-right:hover {
+            transform: translateX(70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
+        }
+        .home-btn:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
+        }
+         .team-option:hover {
+            transform: scale(1.1);
+            border-color: #fbbf24;
+            background: rgba(255,255,255,0.1);
+            filter: drop-shadow(0 0 15px #fbbf24);
+        }
 
         .center-image {
             height: 75%;
+            width: auto;
+            object-fit: contain;
             position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
             z-index: 5;
+            filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
         }
 
         .number-text {
             font-family: 'sald', sans-serif;
             position: absolute;
-            top: 0; height: 100%; width: 65px;
-            background-color: white; color: #620100;
-            font-weight: 900; font-size: 70px;
-            display: flex; align-items: center; justify-content: center;
-            left: 50%; transform: translateX(-50%);
-            padding-top: 11px; z-index: 6;
+            top: 0; 
+            height: 100%; 
+            width: 65px; 
+            background-color: white; 
+            color: #620100; 
+            font-weight: 900;
+            font-size: 70px;
+            z-index: 6;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            left: 50%;
+            transform: translateX(-50%);
+            padding-top: 11px;
         }
 
         .number-left { margin-left: -65px; }
         .number-right { margin-left: 65px; }
 
         .country-label {
-            position: absolute; top: 50%; color: white;
-            font-size: 37px; z-index: 4; text-transform: uppercase;
-            left: 50%; transform: translate(-50%, -50%);
+            position: absolute;
+            top: 50%;
+            color: white;
+            font-family: 'AFCON', sans-serif;
+            font-size: 37px;
+            letter-spacing: 1px;
+            z-index: 4;
+            text-transform: uppercase;
+            pointer-events: none;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .label-morocco { margin-left: -230px; }
         .label-senegal { margin-left: 230px; }
 
+        /* Mascot Container Styling */
         .mascot-container {
-            position: fixed; bottom: 5px; right: 10px;
-            width: 220px; z-index: 9999; pointer-events: none;
+            position: fixed;
+            bottom: 5px;
+            right: 10px;
+            width: 220px;
+            z-index: 9999; 
+            pointer-events: none; 
         }
 
-        /* Mobile Adjustments */
+        .mascot-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            z-index: 10000;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .home-btn {
+            width: 80px;
+            transition: transform 0.3s, filter 0.3s;
+        }
+        .home-btn:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
+        }
+
+        .placeholder-box {
+            background-color: rgba(0,0,0,0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* Modal Styles */
+        #teamModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 10001;
+            align-items: center;
+            justify-content: center;
+        }
+        .team-option {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .team-option:hover {
+            transform: scale(1.1);
+            border-color: #fbbf24;
+            background: rgba(255,255,255,0.1);
+            filter: drop-shadow(0 0 15px #fbbf24);
+        }
+
+        /* --- MOBILE RESPONSIVE OVERRIDES (Phone Only) --- */
         @media (max-width: 768px) {
-            .custom-rectangle { width: 85vw; height: 60px; margin-top: 20px; }
-            .side-image-left, .side-image-right { height: 65px; }
-            .number-text { width: 45px; font-size: 40px; }
-            .number-left { margin-left: -45px; }
-            .number-right { margin-left: 45px; }
-            .country-label { font-size: 16px; }
-            .label-morocco { margin-left: -110px; }
-            .label-senegal { margin-left: 110px; }
-            .mascot-container { width: 100px; }
+            header {
+                margin-top: 30px; /* Line controlling b.webp position independently */
+            }
+
+            main { 
+                margin-top: 10px !important; 
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* Banner Scaling - Even smaller and down */
+            .custom-rectangle {
+                width: 60vw; 
+                height: 8vw;
+                min-height: 35px;
+                margin-top: -40px; 
+            }
+            .side-image-left, .side-image-right { height: 9.5vw; }
+            .number-text { width: 5.2vw; font-size: 4.3vw; padding-top: 0.5vw; }
+            .number-left { margin-left: -5.2vw; }
+            .number-right { margin-left: 5.2vw; }
+            .country-label { font-size: 2.5vw; }
+            .label-morocco { margin-left: -16vw; }
+            .label-senegal { margin-left: 17vw; }
+
+            /* Home button FIXED exactly at edge */
+            #homeLink {
+                bottom: 0px !important;
+                left: 0px !important;
+                position: fixed !important;
+                margin: 0 !important;
+            }
+            .home-btn { width: 55px; display: block; }
+            .home-btn:active {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
+            }
+
+            /* Mascot FIXED exactly at edge and smaller */
+            .mascot-container {
+                width: 70px; 
+                bottom: 0px;
+                right: 0px;
+                position: fixed !important; 
+                margin: 0 !important;
+            }
+            .mascot-container img { margin: 0 !important; }
+
+            /* Center elements */
+            .grid-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+            .section-pronostic, .section-graph { 
+                order: 1; 
+                width: 100%; 
+                max-width: 400px;
+                padding: 10px 20px !important;
+            }
+            .section-graph { order: 2; margin-top: 20px; }
+            
+            header img { width: 70% !important; }
+
+          
         }
     </style>
 </head>
 <body>
-    <a id="homeLink" href="../index.html" style="position: fixed; bottom: 40px; left: 40px; z-index: 1000;">
-        <img src="HOME.webp" alt="Home" class="home-btn w-16">
+    <a id="homeLink" href="../index.html" style="position: fixed; bottom: 140px; left: 120px; z-index: 1000;">
+        <img src="HOME.webp" alt="Home" class="home-btn">
     </a>
 
-    <!-- Notification Toast -->
-    <div id="notification" class="fixed top-5 right-5 bg-yellow-500 text-black p-4 rounded-lg font-bold shadow-xl hidden z-[10000]"></div>
+    <div id="notification" class="bg-yellow-500 text-black font-bold shadow-2xl"></div>
 
-    <!-- Team Modal -->
-    <div id="teamModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[10001]" onclick="closeModal()">
+    <!-- Team Selection Modal -->
+    <div id="teamModal" onclick="closeModal()">
         <div class="bg-[#620100] p-8 rounded-2xl border border-yellow-500/50 max-w-lg w-full mx-4" onclick="event.stopPropagation()">
             <h2 class="text-2xl font-bold mb-6 text-center text-yellow-500">CHOOSE A TEAM</h2>
             <div class="grid grid-cols-2 gap-4">
-                <div class="team-option p-4 rounded-xl text-center border border-transparent hover:border-yellow-500 hover:bg-white/10" onclick="selectTeam('MOR')">
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('MOR')">
                     <img src="mar.webp" alt="Morocco" class="h-16 mx-auto mb-2 object-contain">
                     <p class="font-bold">MOROCCO</p>
                 </div>
-                <div class="team-option p-4 rounded-xl text-center border border-transparent hover:border-yellow-500 hover:bg-white/10" onclick="selectTeam('SEN')">
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('SEN')">
                     <img src="sngl.webp" alt="Senegal" class="h-16 mx-auto mb-2 object-contain">
                     <p class="font-bold">SENEGAL</p>
+                </div>
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('NIG')">
+                    <img src="nig.webp" alt="Nigeria" class="h-16 mx-auto mb-2 object-contain">
+                    <p class="font-bold">NIGERIA</p>
+                </div>
+                <div class="team-option p-4 rounded-xl text-center" onclick="selectTeam('EGY')">
+                    <img src="egy.webp" alt="Egypt" class="h-16 mx-auto mb-2 object-contain">
+                    <p class="font-bold">EGYPT</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <header class="w-full flex justify-center py-6">
-        <img src="b.webp" alt="Header" class="w-1/2 md:w-1/3">
+    <header class="w-full flex justify-center items-center py-4 bg-transparent">
+        <img src="b.webp" alt="Header Logos" style="width: 40%;" class="h-auto block">
     </header>
 
-    <main class="max-w-6xl mx-auto p-6">
-        <!-- Scoreboard -->
-        <div class="flex justify-center mb-12">
-            <div class="custom-rectangle">
-                <img id="flagA" src="mar.webp" alt="Team A" class="side-image-left" onclick="openModal('A')">
+    <main class="max-w-6xl mx-auto p-6 relative mt-[-40px]">
+        
+        <!-- Score Section -->
+        <div class="flex justify-center mb-10 w-full">
+            <div class="custom-rectangle rounded-sm">
+                <!-- Image Gauche -->
+                <img id="flagA" src="mar.webp" alt="Team A" class="side-image-left" onclick="openModal('A')"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterbegin', '<div class=\'side-image-left h-full w-[150px] placeholder-box\'>Team A</div>')">
+                
+                <!-- Texte Team A -->
                 <span id="nameA" class="country-label label-morocco">Morocco</span>
+
+                <!-- Pilier 0 -->
                 <span class="number-text number-left" id="avgA">0</span>
-                <img src="cafi.webp" alt="Trophy" class="center-image">
+
+                <!-- Image Centre -->
+                <img src="cafi.webp" alt="cafi.webp" class="center-image"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend', '<div class=\'center-image h-[80%] w-[40px] placeholder-box\'>cafi</div>')">
+
+                <!-- Pilier 1 -->
                 <span class="number-text number-right" id="avgB">0</span>
+
+                <!-- Texte Team B -->
                 <span id="nameB" class="country-label label-senegal">Senegal</span>
-                <img id="flagB" src="sngl.webp" alt="Team B" class="side-image-right" onclick="openModal('B')">
+
+                <!-- Image Droite -->
+                <img id="flagB" src="sngl.webp" alt="Team B" class="side-image-right" onclick="openModal('B')"
+                    onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('beforeend', '<div class=\'side-image-right h-full w-[150px] placeholder-box\'>Team B</div>')">
             </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- Form -->
-            <section class="bg-red-900/20 p-8 rounded-2xl border border-white/10 backdrop-blur-md">
+        <div class="grid md:grid-cols-2 gap-8 relative z-20 grid-container">
+            <!-- PRONOSTIC SECTION -->
+            <section class="section-pronostic bg-red-900/30 p-8 rounded-2xl border border-white/10 backdrop-blur-md">
                 <h2 class="text-2xl font-bold mb-6 text-yellow-500">Enter Your Pronostic</h2>
                 <div class="space-y-4">
-                    <input type="text" id="userName" placeholder="Your Name" class="w-full p-3 rounded bg-black/50 border border-white/10 outline-none focus:border-yellow-500">
+                    <input type="text" id="userName" placeholder="Your Name" 
+                           class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 focus:outline-none transition-colors">
+                    
                     <div class="flex gap-4">
                         <div class="flex-1">
-                            <label id="labelA" class="text-xs text-gray-400 font-bold uppercase">MOR Score</label>
-                            <input type="number" id="scoreA" class="w-full p-3 rounded bg-black/50 border border-white/10" value="0">
+                            <label id="labelA" class="block text-xs mb-1 text-gray-400 uppercase font-bold">MOR Score</label>
+                            <input type="number" id="scoreA" class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 outline-none" value="0" min="0">
                         </div>
                         <div class="flex-1">
-                            <label id="labelB" class="text-xs text-gray-400 font-bold uppercase">SEN Score</label>
-                            <input type="number" id="scoreB" class="w-full p-3 rounded bg-black/50 border border-white/10" value="0">
+                            <label id="labelB" class="block text-xs mb-1 text-gray-400 uppercase font-bold">SEN Score</label>
+                            <input type="number" id="scoreB" class="w-full p-3 rounded bg-black/50 border border-red-900 focus:border-yellow-500 outline-none" value="0" min="0">
                         </div>
                     </div>
-                    <button onclick="addPrediction()" class="w-full py-4 bg-yellow-600 hover:bg-yellow-500 text-black font-black rounded-lg uppercase shadow-lg transition-transform active:scale-95">
+
+                    <button onclick="addPrediction()" class="w-full py-4 bg-[#d48c00] hover:bg-yellow-500 text-black font-black rounded-lg transition-all uppercase mt-4 shadow-lg active:scale-95">
                         Submit Prediction
                     </button>
                 </div>
             </section>
 
-            <!-- Chart -->
-            <section class="bg-black/30 p-6 rounded-2xl border border-white/10">
+            <!-- GRAPH SECTION -->
+            <section class="section-graph bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
                 <h2 class="text-xl font-bold mb-4 text-yellow-500">Who is Near to Win?</h2>
                 <canvas id="accuracyChart" height="200"></canvas>
             </section>
         </div>
 
-        <!-- Leaderboard -->
-        <section class="mt-12 mb-20">
-            <h2 class="text-2xl font-bold mb-6 text-center">Current Leaderboard</h2>
-            <div id="leaderboard" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+        <section class="mt-12 mb-20 w-full flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-6 text-center text-white/90">Current Leaderboard</h2>
+            <div id="leaderboard" class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+            </div>
         </section>
+
     </main>
 
     <div class="mascot-container">
-        <img src="c.webp" alt="Mascot">
+        <img src="c.webp" alt="Mascot" onerror="this.style.display='none'">
     </div>
 
     <script>
-        const predictions = [];
-        let targetSide = 'A';
-        let chartInstance = null;
+    const predictions = [];
+    let currentAverageA = 0;
+    let currentAverageB = 0;
+    
+    const teamData = {
+        'MOR': { name: 'Morocco', img: 'mar.webp', code: 'MOR' },
+        'SEN': { name: 'Senegal', img: 'sngl.webp', code: 'SEN' },
+        'NIG': { name: 'Nigeria', img: 'nig.webp', code: 'NIG' },
+        'EGY': { name: 'Egypt', img: 'egy.webp', code: 'EGY' }
+    };
 
-        const teamData = {
-            'MOR': { name: 'Morocco', img: 'mar.webp', code: 'MOR' },
-            'SEN': { name: 'Senegal', img: 'sngl.webp', code: 'SEN' }
-        };
-
-        function showToast(msg) {
-            const t = document.getElementById('notification');
-            t.innerText = msg;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
-        }
-
-        function openModal(side) {
-            targetSide = side;
-            document.getElementById('teamModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('teamModal').style.display = 'none';
-        }
-
-        function selectTeam(code) {
-            const team = teamData[code];
-            if (targetSide === 'A') {
-                document.getElementById('flagA').src = team.img;
-                document.getElementById('nameA').innerText = team.name;
-                document.getElementById('labelA').innerText = `${team.code} Score`;
+    function setScoreDisplay(id, val) {
+        const el = document.getElementById(id);
+        const strVal = String(val);
+        let finalHTML = "";
+        for (let char of strVal) {
+            if (char === '4') {
+                finalHTML += `<span style="font-family: 'AFCON', sans-serif; position: relative; top: -7px;">4</span>`;
             } else {
-                document.getElementById('flagB').src = team.img;
-                document.getElementById('nameB').innerText = team.name;
-                document.getElementById('labelB').innerText = `${team.code} Score`;
+                finalHTML += char;
             }
-            closeModal();
-            showToast("Team Updated");
+        }
+        el.innerHTML = finalHTML;
+    }
+
+    function openModal(side) {
+        targetSide = side;
+        document.getElementById('teamModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('teamModal').style.display = 'none';
+    }
+
+    function selectTeam(code) {
+        const team = teamData[code];
+        const otherSide = (targetSide === 'A') ? 'B' : 'A';
+        const currentOpponent = document.getElementById(`name${otherSide}`).innerText;
+        
+        if (team.name.toUpperCase() === currentOpponent.toUpperCase()) {
+            return showToast("Teams must be different!");
         }
 
-        window.onload = () => {
-            const ctx = document.getElementById('accuracyChart').getContext('2d');
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: { labels: ['Start', '15\'', '30\'', '45\'', 'Now'], datasets: [] },
-                options: { responsive: true, plugins: { legend: { display: false } } }
-            });
-        };
-
-        function addPrediction() {
-            const name = document.getElementById('userName').value.trim();
-            const sA = parseInt(document.getElementById('scoreA').value);
-            const sB = parseInt(document.getElementById('scoreB').value);
-
-            if (!name) return showToast("Enter your name!");
-            
-            predictions.push({ name, sA, sB, accuracy: Math.floor(Math.random() * 40) + 60 });
-            updateUI();
-            document.getElementById('userName').value = '';
+        if (targetSide === 'A') {
+            document.getElementById('flagA').src = team.img;
+            document.getElementById('nameA').innerText = team.name;
+            document.getElementById('labelA').innerText = `${team.code} Score`;
+        } else {
+            document.getElementById('flagB').src = team.img;
+            document.getElementById('nameB').innerText = team.name;
+            document.getElementById('labelB').innerText = `${team.code} Score`;
         }
+        
+        predictions.length = 0; 
+        currentAverageA = 0;
+        currentAverageB = 0;
+        setScoreDisplay('avgA', 0);
+        setScoreDisplay('avgB', 0);
+        accuracyChart.data.datasets = [];
+        accuracyChart.update();
+        updateLeaderboardUI();
+        showToast("Teams updated: Predictions reset.");
+        closeModal();
+    }
 
-        function updateUI() {
-            const lb = document.getElementById('leaderboard');
-            lb.innerHTML = predictions.map(p => `
-                <div class="bg-green-900/40 p-4 rounded-xl border-t-2 border-yellow-500 text-center">
-                    <div class="text-xs font-bold text-yellow-500 truncate">${p.name}</div>
-                    <div class="text-xl font-black">${p.sA} - ${p.sB}</div>
-                    <div class="text-[10px] text-gray-400">${p.accuracy}% Match</div>
-                </div>
-            `).join('');
-
-            // Update score averages visually
-            const avgA = Math.round(predictions.reduce((a, b) => a + b.sA, 0) / predictions.length);
-            const avgB = Math.round(predictions.reduce((a, b) => a + b.sB, 0) / predictions.length);
-            document.getElementById('avgA').innerText = avgA;
-            document.getElementById('avgB').innerText = avgB;
+    const ctx = document.getElementById('accuracyChart').getContext('2d');
+    const accuracyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Start', '15\'', '30\'', '45\'', 'Now'],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            scales: { 
+                y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888' } },
+                x: { grid: { display: false }, ticks: { color: '#888' } }
+            },
+            plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } }
         }
-    </script>
+    });
+
+    function showToast(msg) {
+        const toast = document.getElementById('notification');
+        toast.innerText = msg;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    function calculateAccuracy(predA, predB) {
+        const diff = Math.abs(predA - currentAverageA) + Math.abs(predB - currentAverageB);
+        return Math.max(0, 100 - (diff * 20));
+    }
+
+    function addPrediction() {
+        const nameInput = document.getElementById('userName');
+        const name = nameInput.value.trim();
+        const scoreAVal = document.getElementById('scoreA').value;
+        const scoreBVal = document.getElementById('scoreB').value;
+        const sA = parseInt(scoreAVal);
+        const sB = parseInt(scoreBVal);
+
+        if (!name) return showToast("Please enter your name!");
+        if (sA < 0 || sB < 0) return showToast("Negative numbers are not allowed!");
+
+        predictions.push({ name, sA, sB, accuracy: 0 });
+        updateAverages();
+        nameInput.value = ''; 
+        showToast(`Prediction added!`);
+    }
+
+    function updateAverages() {
+        const count = predictions.length;
+        if (count > 0) {
+            const sumA = predictions.reduce((sum, p) => sum + p.sA, 0);
+            const sumB = predictions.reduce((sum, p) => sum + p.sB, 0);
+            currentAverageA = Math.round(sumA / count);
+            currentAverageB = Math.round(sumB / count);
+            setScoreDisplay('avgA', currentAverageA);
+            setScoreDisplay('avgB', currentAverageB);
+        }
+        updateLeaderboardUI();
+        const last = predictions[predictions.length - 1];
+        if (last) updateChart(last.name, calculateAccuracy(last.sA, last.sB));
+    }
+
+    function updateLeaderboardUI() {
+        const container = document.getElementById('leaderboard');
+        container.innerHTML = ''; 
+        predictions.forEach(p => { p.accuracy = calculateAccuracy(p.sA, p.sB); });
+        const sorted = [...predictions].sort((a, b) => b.accuracy - a.accuracy);
+        sorted.forEach(p => {
+            const card = document.createElement('div');
+            card.className = "bg-green-900/80 p-4 rounded-xl border-t-4 border-yellow-500 text-center shadow-xl backdrop-blur-sm transform transition hover:scale-105";      
+            card.innerHTML = `
+                <div class="text-xs font-bold text-yellow-500 uppercase truncate px-2">${p.name}</div>
+                <div class="text-2xl font-black">${p.sA} - ${p.sB}</div>
+                <div class="text-[10px] text-gray-300 mt-1">${p.accuracy}% Match</div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function updateChart(name, acc) {
+        const color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+        accuracyChart.data.datasets.push({
+            label: name,
+            data: [40, 55, 45, 60, acc],
+            borderColor: color,
+            backgroundColor: color,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 3
+        });
+        accuracyChart.update();
+    }
+</script>
 </body>
 </html>

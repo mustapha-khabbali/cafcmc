@@ -50,6 +50,9 @@
             flex-direction: column;
             min-height: 100vh;
         }
+          /* VISIBILITY LOGIC (FIXED) */
+        .mobile-only { display: none !important; } /* Hidden by default on Desktop */
+
 
         /* Header Logos Styling */
         .logo-header {
@@ -213,15 +216,69 @@
             animation: fadeIn 0.8s ease-out forwards;
         }
 
+        #video-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    
+    /* Perfect Centering Logic */
+    display: none; 
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    position: relative;
+    width: 90%;          /* Responsive width on mobile */
+    max-width: 800px;    /* Prevents it from being too huge on desktop */
+    aspect-ratio: 16 / 9; /* Keeps the video shape consistent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+video {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.close-modal {
+    position: absolute;
+    top: -50px; /* Moves the 'X' above the video */
+    right: 0;
+    color: white;
+    font-size: 3rem;
+    cursor: pointer;
+    font-family: sans-serif;
+}
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateX(-15px); }
             to { opacity: 1; transform: translateX(0); }
         }
+.desktop-only .btn-group-row {
+    display: flex;
+    gap: 130px; 
+    position: relative;
+}
+.desktop-only .row-top { transform: translate(-90px, -70px); }
+.desktop-only .row-bottom { transform: translate(40px, -30px); }
+        
         /* ========================================= */
         /* MOBILE RESPONSIVE DESIGN (Max Width 1024px) */
         /* ========================================= */
+         /* MOBILE RESPONSIVE DESIGN */
         @media (max-width: 1024px) {
-            body {
+            .mobile-only { display: flex !important; } /* Show on Mobile */
+            .desktop-only { display: none !important; } /* Hide on Mobile */
+ body {
                 overflow-y: auto; /* Allow scrolling vertically on small phones */
                 overflow-x: hidden; /* Prevent horizontal scroll */
             }
@@ -282,43 +339,39 @@
                 max-width: 90%; /* Constrain text width so it doesn't touch the right edge */
             }
 
-            /* 4. Buttons: Mimic web appearance (staggered) */
-            .btn-group-row {
-                width: 100%;
-                justify-content: flex-start; /* Start from left */
-                gap: 50px; 
-                margin-bottom: 35px; 
-            }
+           @media (max-width: 1024px) {
+    .mobile-only .btn-group-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr 1fr !important; /* 3 invisible tracks */
+        width: 100vw;
+        box-sizing: border-box;
+        padding: 10px 5%; /* Adjust this to move buttons closer/further from edge */
+        gap: 0;
+        transform: none !important; /* Remove desktop shifts */
+         padding-left: 0;
+  padding-right: 7%;
+    }
 
-            .row-top {
-                /* Reduced version of desktop transform (shifted left) */
-                transform: translate(-10px, 0) !important; 
-            }
-            .row-bottom {
-                /* Shifted right and moved UP (from 25px to 10px) */
-                transform: translate(30px, 10px) !important;
-            }
+    .mobile-only .image-btn-base {
+        width: 42vw;
+        max-width: 150px;
+        transform: none !important; /* Remove desktop shifts */
+    }
 
-            .image-btn-base {
-                width: 35vw; 
-                max-width: 160px;
-            }
-            
-            .btn-label {
-                font-size: 0.9rem;
-            }
+    /* Column Placement */
+    .btn-left { grid-column: 1; justify-self: start; }
+    .btn-center { grid-column: 2; justify-self: center; }
+    .btn-right { grid-column: 3; justify-self: end; }
 
-            /* 5. Image (p1): Moved up to Title level, More transparent */
-            .p1-hero {
-                position: absolute; /* Absolute relative to hero-container */
-                top: 20px; /* Align with top (Title level) */
-                right: -30%; 
-                bottom: auto; /* Remove bottom anchor */
-                height: 50vh; 
-                opacity: 0.2; /* MORE TRANSPARENT */
-                z-index: -1; 
-                pointer-events: none;
-            }
+    /* Label fix for mobile */
+    .btn-label {
+        font-size: clamp(0.8rem, 3vw, 1.1rem) !important;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+            .p1-hero { top: 20px; right: -30%; height: 50vh; opacity: 0.2; z-index: -1; }
         }
     </style>
 </head>
@@ -358,33 +411,93 @@ Interactive games, brainstormed in the FabLab and CoP at CMC BMK, highlight our 
 dedication to the spectacle our country knows.
             </p>
 
-           <!-- Top Row: btn (Predict), btn2 (Quiz) -->
-            <div class="btn-group-row row-top">
-                <button class="image-btn-base" id="btn" onclick="window.location.href='predict/predict.html'">
-                    <img src="btn.webp" alt="" style="width: 100%; height: auto;">
-                    <span class="btn-label">Predict</span>
-                </button>
-                <button class="image-btn-base" id="btn2" onclick="window.location.href='quiz/quiz.html'">
-                    <img src="btn.webp" alt="" style="width: 100%; height: auto;">
-                    <span class="btn-label">Quiz</span>
-                </button>
+          <!-- DESKTOP VERSION -->
+            <div class="desktop-only">
+                <div class="btn-group-row row-top">
+                    <button class="image-btn-base" onclick="window.location.href='predict/predict.html'">
+                        <img src="btn.webp" alt="" style="width: 100%;">
+                        <span class="btn-label">Predict</span>
+                    </button>
+                    <button class="image-btn-base" onclick="window.location.href='quiz/quiz.html'">
+                        <img src="btn.webp" alt="" style="width: 100%;">
+                        <span class="btn-label">Quiz</span>
+                    </button class="btn-group-row row-center">
+                    <button class="image-btn-base" onclick="openVideo()">
+                        <img src="btn.webp" alt="" style="width: 100%;">
+                        <span class="btn-label">Video</span>
+                    </button>
+                </div>
+                <div class="btn-group-row row-bottom ">
+                    <button class="image-btn-base" onclick="document.getElementById('card-section').scrollIntoView({behavior: 'smooth'})">
+                        <img src="btn.webp" alt="" style="width: 100%;">
+                        <span class="btn-label">Card</span>
+                    </button>
+                    <button class="image-btn-base" onclick="window.location.href='memo/memo.html'">
+                        <img src="btn.webp" alt="" style="width: 100%;">
+                        <span class="btn-label">Memo</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Bottom Row: btn1 (Card), btn4 (Memo) -->
-            <div class="btn-group-row row-bottom">
-                <button class="image-btn-base" id="btn1" onclick="document.getElementById('card-section').scrollIntoView({behavior: 'smooth'})">
-                    <img src="btn.webp" alt="" style="width: 100%; height: auto;">
-                    <span class="btn-label">Card</span>
-                </button>
-                
-                <button class="image-btn-base" id="btn4" onclick="window.location.href='memo/memo.html'">
-                    <img src="btn.webp" alt="" style="width: 100%; height: auto;">
-                    <span class="btn-label">Memo</span>
-                </button>
-            </div>
+            <!-- MOBILE VERSION -->
+          <div class="mobile-only" style="display: flex; flex-direction: column; width: 100%;">
+    <div class="btn-group-row">
+        <button class="image-btn-base btn-left" onclick="window.location.href='memo/memo.html'">
+            <img src="btn.webp" style="width: 100%;">
+            <span class="btn-label">Memo</span>
+        </button>
+        <button class="image-btn-base btn-right" onclick="window.location.href='quiz/quiz.html'">
+            <img src="btn.webp" style="width: 100%;">
+            <span class="btn-label">Quiz</span>
+        </button>
+    </div>
 
-        </div>
+    <div class="btn-group-row">
+        <button class="image-btn-base btn-center" onclick="window.location.href='predict/predict.html'">
+            <img src="btn.webp" style="width: 100%;">
+            <span class="btn-label">Predict</span>
+        </button>
+    </div>
+
+    <div class="btn-group-row">
+        <button class="image-btn-base btn-left" onclick="document.getElementById('card-section').scrollIntoView({behavior: 'smooth'})">
+            <img src="btn.webp" style="width: 100%;">
+            <span class="btn-label">Card</span>
+        </button>
+        <button class="image-btn-base btn-right" onclick="openVideo()">
+            <img src="btn.webp" style="width: 100%;">
+            <span class="btn-label">Video</span>
+        </button>
+    </div>
+</div>
+
+        
     </main>
+      <div id="video-modal" onclick="closeVideo()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-modal" onclick="closeVideo()">&times;</span>
+            <video id="afcon-video" controls playsinline>
+                <source src="vid.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <script>
+        function openVideo() {
+            const modal = document.getElementById('video-modal');
+            const video = document.getElementById('afcon-video');
+            modal.style.display = 'flex';
+            video.play();
+        }
+
+        function closeVideo() {
+            const modal = document.getElementById('video-modal');
+            const video = document.getElementById('afcon-video');
+            modal.style.display = 'none';
+            video.pause();
+            video.currentTime = 0;
+        }
+    </script>
 
 </body>
 </html>

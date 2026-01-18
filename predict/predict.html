@@ -34,6 +34,14 @@
             overflow-x: hidden;
         }
 
+        /* Responsive Background for Mobile */
+        @media (max-width: 768px) {
+            body {
+                background-image: url('z.webp');
+                background-size: cover; 
+            }
+        }
+
         /* Styles de la Bannière Épurée intégrés */
         .custom-rectangle {
             width: 850px;
@@ -80,6 +88,24 @@
         .side-image-right:hover {
             transform: translateX(70%) scale(1.15);
             filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
+        }
+        .side-image-left:hover {
+            transform: translateX(-70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
+        }
+        .side-image-right:hover {
+            transform: translateX(70%) scale(1.15);
+            filter: drop-shadow(0 0 15px #fbbf24) drop-shadow(0 0 30px #d48c00) brightness(1.2);
+        }
+        .home-btn:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
+        }
+         .team-option:hover {
+            transform: scale(1.1);
+            border-color: #fbbf24;
+            background: rgba(255,255,255,0.1);
+            filter: drop-shadow(0 0 15px #fbbf24);
         }
 
         .center-image {
@@ -138,7 +164,7 @@
         .label-morocco { margin-left: -230px; }
         .label-senegal { margin-left: 230px; }
 
-        /* Styles spécifiques au Dashboard */
+        /* Mascot Container Styling */
         .mascot-container {
             position: fixed;
             bottom: 5px;
@@ -213,10 +239,81 @@
             background: rgba(255,255,255,0.1);
             filter: drop-shadow(0 0 15px #fbbf24);
         }
+
+        /* --- MOBILE RESPONSIVE OVERRIDES (Phone Only) --- */
+        @media (max-width: 768px) {
+            header {
+                margin-top: 30px; /* Line controlling b.webp position independently */
+            }
+
+            main { 
+                margin-top: 10px !important; 
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            /* Banner Scaling - Even smaller and down */
+            .custom-rectangle {
+                width: 60vw; 
+                height: 8vw;
+                min-height: 35px;
+                margin-top: -40px; 
+            }
+            .side-image-left, .side-image-right { height: 9.5vw; }
+            .number-text { width: 5.2vw; font-size: 4.3vw; padding-top: 0.5vw; }
+            .number-left { margin-left: -5.2vw; }
+            .number-right { margin-left: 5.2vw; }
+            .country-label { font-size: 2.5vw; }
+            .label-morocco { margin-left: -16vw; }
+            .label-senegal { margin-left: 17vw; }
+
+            /* Home button FIXED exactly at edge */
+            #homeLink {
+                bottom: 0px !important;
+                left: 0px !important;
+                position: fixed !important;
+                margin: 0 !important;
+            }
+            .home-btn { width: 55px; display: block; }
+            .home-btn:active {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 15px #ff00ff);
+            }
+
+            /* Mascot FIXED exactly at edge and smaller */
+            .mascot-container {
+                width: 70px; 
+                bottom: 0px;
+                right: 0px;
+                position: fixed !important; 
+                margin: 0 !important;
+            }
+            .mascot-container img { margin: 0 !important; }
+
+            /* Center elements */
+            .grid-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+            .section-pronostic, .section-graph { 
+                order: 1; 
+                width: 100%; 
+                max-width: 400px;
+                padding: 10px 20px !important;
+            }
+            .section-graph { order: 2; margin-top: 20px; }
+            
+            header img { width: 70% !important; }
+
+          
+        }
     </style>
 </head>
 <body>
-    <a href="../index.html" style="position: fixed; bottom: 140px; left: 120px; z-index: 1000;">
+    <a id="homeLink" href="../index.html" style="position: fixed; bottom: 140px; left: 120px; z-index: 1000;">
         <img src="HOME.webp" alt="Home" class="home-btn">
     </a>
 
@@ -253,8 +350,8 @@
 
     <main class="max-w-6xl mx-auto p-6 relative mt-[-40px]">
         
-        <!-- Score Section (Symmetric Banner Integrated) -->
-        <div class="flex justify-center mb-10">
+        <!-- Score Section -->
+        <div class="flex justify-center mb-10 w-full">
             <div class="custom-rectangle rounded-sm">
                 <!-- Image Gauche -->
                 <img id="flagA" src="mar.webp" alt="Team A" class="side-image-left" onclick="openModal('A')"
@@ -282,8 +379,9 @@
             </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 relative z-20">
-            <section class="bg-red-900/30 p-8 rounded-2xl border border-white/10 backdrop-blur-md">
+        <div class="grid md:grid-cols-2 gap-8 relative z-20 grid-container">
+            <!-- PRONOSTIC SECTION -->
+            <section class="section-pronostic bg-red-900/30 p-8 rounded-2xl border border-white/10 backdrop-blur-md">
                 <h2 class="text-2xl font-bold mb-6 text-yellow-500">Enter Your Pronostic</h2>
                 <div class="space-y-4">
                     <input type="text" id="userName" placeholder="Your Name" 
@@ -306,15 +404,16 @@
                 </div>
             </section>
 
-            <section class="bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+            <!-- GRAPH SECTION -->
+            <section class="section-graph bg-black/40 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
                 <h2 class="text-xl font-bold mb-4 text-yellow-500">Who is Near to Win?</h2>
                 <canvas id="accuracyChart" height="200"></canvas>
             </section>
         </div>
 
-        <section class="mt-12 mb-20">
+        <section class="mt-12 mb-20 w-full flex flex-col items-center">
             <h2 class="text-2xl font-bold mb-6 text-center text-white/90">Current Leaderboard</h2>
-            <div id="leaderboard" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div id="leaderboard" class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
             </div>
         </section>
 
@@ -329,8 +428,6 @@
     let currentAverageA = 0;
     let currentAverageB = 0;
     
-    // Selection state
-    let targetSide = 'A';
     const teamData = {
         'MOR': { name: 'Morocco', img: 'mar.webp', code: 'MOR' },
         'SEN': { name: 'Senegal', img: 'sngl.webp', code: 'SEN' },
@@ -338,14 +435,10 @@
         'EGY': { name: 'Egypt', img: 'egy.webp', code: 'EGY' }
     };
 
-    /**
-     * Helper to handle font switching specifically for digit '4'
-     */
     function setScoreDisplay(id, val) {
         const el = document.getElementById(id);
         const strVal = String(val);
         let finalHTML = "";
-        
         for (let char of strVal) {
             if (char === '4') {
                 finalHTML += `<span style="font-family: 'AFCON', sans-serif; position: relative; top: -7px;">4</span>`;
@@ -367,8 +460,6 @@
 
     function selectTeam(code) {
         const team = teamData[code];
-        
-        // Validation: User shouldn't choose the same team against each other
         const otherSide = (targetSide === 'A') ? 'B' : 'A';
         const currentOpponent = document.getElementById(`name${otherSide}`).innerText;
         
@@ -386,20 +477,14 @@
             document.getElementById('labelB').innerText = `${team.code} Score`;
         }
         
-        // Reset Logic: Clear all current data when a team changes
         predictions.length = 0; 
         currentAverageA = 0;
         currentAverageB = 0;
         setScoreDisplay('avgA', 0);
         setScoreDisplay('avgB', 0);
-        
-        // Clear chart
         accuracyChart.data.datasets = [];
         accuracyChart.update();
-        
-        // Update leaderboard
         updateLeaderboardUI();
-        
         showToast("Teams updated: Predictions reset.");
         closeModal();
     }
@@ -438,16 +523,11 @@
         const name = nameInput.value.trim();
         const scoreAVal = document.getElementById('scoreA').value;
         const scoreBVal = document.getElementById('scoreB').value;
-        
         const sA = parseInt(scoreAVal);
         const sB = parseInt(scoreBVal);
 
         if (!name) return showToast("Please enter your name!");
-        
-        // Validation: negative numbers are not allowed
-        if (sA < 0 || sB < 0) {
-            return showToast("Negative numbers are not allowed!");
-        }
+        if (sA < 0 || sB < 0) return showToast("Negative numbers are not allowed!");
 
         predictions.push({ name, sA, sB, accuracy: 0 });
         updateAverages();
@@ -465,12 +545,9 @@
             setScoreDisplay('avgA', currentAverageA);
             setScoreDisplay('avgB', currentAverageB);
         }
-
         updateLeaderboardUI();
         const last = predictions[predictions.length - 1];
-        if (last) {
-            updateChart(last.name, calculateAccuracy(last.sA, last.sB));
-        }
+        if (last) updateChart(last.name, calculateAccuracy(last.sA, last.sB));
     }
 
     function updateLeaderboardUI() {

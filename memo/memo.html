@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MEMO</title>
     <link rel="icon" type="image/png" href="./favicon.png">
     <style>
@@ -10,6 +10,8 @@
             --morocco-red: #c1272d; 
             --morocco-green: #006233; 
             --gold: #ffcc00; 
+            /* Added from Quiz code for consistency */
+            --hud-height: 120px;
         }
 
         body { 
@@ -21,6 +23,83 @@
             height: 100vh; 
             width: 100vw;
             overflow: hidden; 
+        }
+
+        /* --- PHONE ONLY: FORCED LANDSCAPE ROTATION (COPY-PASTED FROM QUIZ) --- */
+        @media screen and (max-width: 768px) and (orientation: portrait) {
+            :root {
+                --hud-height: 65px;
+            }
+            body {
+                position: fixed;
+                width: 100vh !important;
+                height: 100vw !important;
+                top: 0;
+                left: 100vw;
+                transform: rotate(90deg);
+                transform-origin: 0 0;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            #main-container { 
+                width: 100vh !important; 
+                height: 100% !important;
+            }
+
+
+#game-board {
+    display: grid !important;
+    place-content: center !important; /* Shorthand to center everything exactly */
+    height: 100vw !important;
+    width: 100vh !important;
+}
+            /* Card style override to match the Quiz sizing logic */
+.card-container { 
+    /* 1. THE RATIO - Untouchable */
+    aspect-ratio: 3857 / 5463 !important; 
+
+    /* 2. SMART SCALING: Automatically picks the biggest size that fits both axes */
+    /* It calculates the max width for 9 columns vs max height for 3 rows */
+    width: min(calc((100vh - 80px) / 9), calc((100vw - 40px) / 3 * (3857 / 5463))) !important;
+
+    /* 3. Forces height to follow the width perfectly */
+    height: auto !important;
+
+    /* 4. Safety limits to keep it centered and away from edges */
+    max-width: calc((100vh - 80px) / 9) !important;
+    max-height: calc((100vw - 40px) / 3) !important;
+}
+
+            .modal-content { 
+                width: 85vh !important; 
+                max-height: 90vw !important; 
+                padding: 15px !important;
+            }
+
+            .modal-content h2 { font-size: 1.1rem !important; }
+
+            /* Modal buttons (Continue/Restart) specifically for phone */
+            .continue-btn { 
+                margin-top: 27px !important; 
+                margin-left: auto !important; 
+                margin-right: auto !important;
+                display: block !important;
+                width: 180px !important;
+                height: 55px !important;
+                font-size: 1.4rem !important;
+                background-size: contain !important;
+            }
+
+            /* EXACT HOME BUTTON POSITION FROM QUIZ */
+            .home-btn {
+                position: fixed !important;
+                width: 60px !important; 
+                top: 1% !important;
+                left: 38% !important;
+                bottom: auto !important;
+            }
         }
 
         /* Main Container - Full Screen */
@@ -45,6 +124,7 @@
             justify-content: center; 
             align-content: center;
         }
+        
 
         .card-container {
             perspective: 1000px;
@@ -166,6 +246,7 @@
     </div>
 
     <script>
+        /* LOGIC JS REMAINS UNTOUCHED */
         const STAGES = [
             { rows: 2, cols: 3, total: 6, match: 2 },  
             { rows: 3, cols: 4, total: 12, match: 2 }, 
@@ -181,7 +262,6 @@
 
         const audioFlip = new Audio('https://www.soundjay.com/misc/sounds/swish-2.mp3');
         const audioMatch = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-02.mp3');
-        // A cuter, sparklier "Well Done" sound effect
         const audioChampion = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-06.mp3');
 
         function loadStage() {
@@ -289,8 +369,6 @@
             const btn = document.getElementById('modal-action');
 
             overlay.style.display = 'flex';
-
-            // Play the "cute" sparkly champion sound
             audioChampion.currentTime = 0;
             audioChampion.play();
 

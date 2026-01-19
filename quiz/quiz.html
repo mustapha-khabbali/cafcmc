@@ -28,7 +28,7 @@
             overflow: hidden; 
         }
 
-        /* PHONE ONLY: FORCED LANDSCAPE ROTATION */
+        /* PHONE ONLY: FORCED LANDSCAPE ROTATION (Untouched as requested) */
         @media screen and (max-width: 768px) and (orientation: portrait) {
             :root {
                 --hud-height: 65px;
@@ -43,7 +43,7 @@
                 transform-origin: 0 0;
                 display: flex;
                 flex-direction: row;
-                justify-content: space-between; /* Stretches screen side-to-side */
+                justify-content: space-between;
             }
 
             #sidebar { 
@@ -59,7 +59,6 @@
             }
 
             #leaderboard-list li { 
-                /* 8px top padding moves text down, 2px bottom keeps height small */
                 padding: 8px 15px 2px 15px !important; 
                 font-size: 0.75rem !important; 
                 margin-bottom: 4px !important;
@@ -72,12 +71,11 @@
             }
             body.game-active #main-container { width: 100vh !important; }
 
-            /* HUD: Inventory Pushed to Max Right */
             #hud { 
                 padding: 0 15px !important; 
                 height: var(--hud-height) !important;
                 justify-content: space-between !important; 
-                display: none; /* Controlled by game logic */
+                display: none;
             }
             body.game-active #hud { display: flex !important; }
             
@@ -111,73 +109,42 @@
             .ans-btn { font-size: 0.85rem !important; }
             .timer-circle { width: 40px !important; height: 40px !important; font-size: 1.2rem !important; }
             
-               /* Moves the text content in special card modals down on phone */
-       /* --- SPECIAL CARD MODAL: PHONE OVERRIDES --- */
+            .feed-layout { 
+                display: flex !important; 
+                gap: 15px !important; 
+                margin-top: -50px !important; 
+                margin-left: -30px !important; 
+                padding-right: 10px !important; 
+            }
+            .feed-card-img { width: 70px !important; margin-left: 5px !important; }
+            .feed-layout h2 { font-size: 1.6rem !important; margin: 0 !important; color: var(--gold) !important; }
+            .feed-layout h3 { font-size: 1.1rem !important; margin-top: 5px !important; line-height: 1.2 !important; }
 
-/* 1. The Main Container: Controls the overall position of the content group */
-.feed-layout { 
-    display: flex !important;       /* Keeps card and text side-by-side */
-    gap: 15px !important;           /* Space between the card and the text */
-    
-    /* VERTICAL POSITION */
-    margin-top: -50px !important;    /* Controls Up/Down (Change this to move vertically) */
-
-    /* HORIZONTAL POSITION */
-    margin-left: -30px !important;   /* Controls Left/Right (Change this to move horizontally) */
-    
-    padding-right: 10px !important; /* Safety space on the right edge */
-}
-
-
-/* 2. The Card Image: Controls how the card looks and sits */
-.feed-card-img { 
-    width: 70px !important;         /* Makes the card smaller to fit phone screens */
-    margin-left: 5px !important;    /* Space between the card and the left edge */
-}
-
-/* 3. The Title (H2): Controls the name of the card (e.g., "SHIELD") */
-.feed-layout h2 {
-    font-size: 1.6rem !important;   /* Smaller font so it doesn't wrap to two lines */
-    margin: 0 !important;           /* Removes default spacing around the title */
-    color: var(--gold) !important;  /* Ensures the title stays bright and readable */
-}
-
-/* 4. The Message (H3): Controls the description text (e.g., "Shield Collected!") */
-.feed-layout h3 { 
-    font-size: 1.1rem !important;   /* Smaller description text for mobile */
-    margin-top: 5px !important;     /* Space between the title and this description */
-    line-height: 1.2 !important;    /* Keeps text lines tight and clean */
-}
-
-.feed-layout + .modal-action-btn { 
-    margin-top: 27px !important; 
-    margin-left: auto !important;   /* These two 'auto' lines... */
-    margin-right: auto !important;  /* ...force the button to the horizontal center */
-    display: block !important;      /* Required for 'auto' margins to work */
-}
-.home-btn {
-  position: fixed !important;
-    width: 60px !important; 
-
-    /* RELATIVE POSITIONING */
-top: 1% !important;     /* Keeps it at the top */
-    left: 38% !important;    /* MOVES IT TO THE LEFT EDGE */
-    
-    /* RESET BOTTOM */
-    bottom: auto !important;
-}
-
-             /* Modal buttons (Continue/Restart) specifically for phone */
+            .feed-layout + .modal-action-btn { 
+                margin-top: 27px !important; 
+                margin-left: auto !important; 
+                margin-right: auto !important; 
+                display: block !important; 
+            }
+            .home-btn {
+                position: fixed !important;
+                width: 60px !important; 
+                top: 1% !important; 
+                left: 38% !important; 
+                bottom: auto !important;
+            }
             .modal-action-btn { 
                 margin-top: 160px !important; 
                 padding: 8px 25px !important; 
                 font-size: 1rem !important; 
             }
-        
+        }
 
+        /* DESKTOP STYLES (Fixed to prevent layout breakage) */
         #sidebar { 
             width: var(--sidebar-width); 
             height: 100%;
+            flex-shrink: 0; /* Prevents sidebar from being crushed */
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('y.webp');
             background-size: cover; 
             background-position: center top; 
@@ -192,7 +159,7 @@ top: 1% !important;     /* Keeps it at the top */
         }
         
         #main-container { 
-            width: var(--main-width);
+            flex-grow: 1; /* Fills remaining space */
             height: 100%;
             background-image: url('x.webp');
             background-size: cover;
@@ -202,6 +169,7 @@ top: 1% !important;     /* Keeps it at the top */
             flex-direction: column; 
             position: relative; 
             z-index: 5;
+            overflow: hidden;
         }
 
         body.game-active #sidebar { display: none; }
@@ -417,7 +385,7 @@ top: 1% !important;     /* Keeps it at the top */
     </style>
 </head>
 <body>
- <a href="../index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+<a href="../index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
     <style>
         .home-btn {
             width: 80px;

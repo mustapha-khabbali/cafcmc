@@ -150,7 +150,7 @@
 }
 
 .feed-layout + .modal-action-btn { 
-    margin-top: 20px !important; 
+    margin-top: 23px !important; 
     margin-left: auto !important;   /* These two 'auto' lines... */
     margin-right: auto !important;  /* ...force the button to the horizontal center */
     display: block !important;      /* Required for 'auto' margins to work */
@@ -838,7 +838,7 @@
                     ultraJokerLives--; audioSpecial.currentTime = 0; audioSpecial.play();
                     setModalStyle('feed');
                     document.getElementById('modal-body').innerHTML = `
-                        <div class="feed-layout"><div class="feed-card-img card-ultra"></div><h3>Ultra Joker saved you! Lives left: ${ultraJokerLives}</h3></div>
+                        <div class="feed-layout"><div class="feed-card-img card-ultra"></div><h3>Ultra Joker saved you!<br> Lives left: ${ultraJokerLives}</h3></div>
                         <button class="modal-action-btn" onclick="closeModal()">CONTINUE</button>`;
                 } else if(shields > 0) {
                     shields--; audioSpecial.currentTime = 0; audioSpecial.play();

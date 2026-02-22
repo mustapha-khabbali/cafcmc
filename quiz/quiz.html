@@ -537,11 +537,22 @@
             {q: "أين ستقام نهائي إفريقيا 2025 رسميًا؟", a: ["الدار البيضاء", "الرباط", "طنجة", "مراكش"], c: [1]}
         ];
 
-        const audioFlip = new Audio('https://www.soundjay.com/misc/sounds/swish-2.mp3');
-        const audioCorrect = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-02.mp3');
-        const audioWrong = new Audio('https://www.soundjay.com/misc/sounds/fail-trombone-01.mp3');
-        const audioSpecial = new Audio('https://www.soundjay.com/misc/sounds/magic-chime-01.mp3');
-        const audioWin = new Audio('https://www.soundjay.com/human/sounds/applause-01.mp3');
+        // 1. Swish / Flip Sound
+        const audioFlip = new Audio('https://cdn.pixabay.com/audio/2022/03/10/audio_f329972851.mp3');
+
+        // 2. Magic Chime (Correct Match)
+        const audioCorrect = new Audio('https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1569a.mp3');
+
+        // 3. Fail Trombone (Wrong Match)
+        const audioWrong = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_2492580790.mp3');
+
+        // 4. Special Magic Chime
+        const audioSpecial = new Audio('https://cdn.pixabay.com/audio/2022/03/10/audio_c365319803.mp3');
+
+        // 5. Applause (Win Sound)
+        const audioWin = new Audio('https://cdn.pixabay.com/audio/2021/11/24/audio_60699564c7.mp3');
+
+        // These local files should still work if they are in your project folder:
         const audioStart = new Audio('Referee_Whistle.mp3');
         const audioTick = new Audio('Clock_Ticking.mp3');
         const audioDima = new Audio('dima.mp3');

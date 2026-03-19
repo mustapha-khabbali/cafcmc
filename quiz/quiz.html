@@ -738,30 +738,33 @@
             `;
         }
 
+       // --- SCORE SAVING SYSTEM ---
         function saveScore() {
-    if (!playerName) return;
-    let records = JSON.parse(localStorage.getItem('m_scores_2025') || '[]');
-    let existing = records.find(r => r.name === playerName);
+            if (!playerName || playerName === "youth5.0" || playerName === "7i9o") return;
+            let records = JSON.parse(localStorage.getItem('m_scores_2025') || '[]');
+            let existing = records.find(r => r.name === playerName);
 
-    if (existing) {
-        if (score > existing.score) existing.score = score;
-    } else {
-        records.push({name: playerName, score: score});
-    }
+            if (existing) {
+                if (score > existing.score) existing.score = score;
+            } else {
+                records.push({ name: playerName, score: score });
+            }
 
-    records.sort((a,b) => b.score - a.score);
-    localStorage.setItem('m_scores_2025', JSON.stringify(records.slice(0, 10)));
-    loadLeaderboard(); // Updates the sidebar immediately
-}
+            records.sort((a, b) => b.score - a.score);
+            localStorage.setItem('m_scores_2025', JSON.stringify(records.slice(0, 10)));
+            loadLeaderboard(); 
+        }
+
         function showGameOverScreen() {
+            saveScore(); 
             audioWrong.currentTime = 0; audioWrong.play();
             setModalStyle('over');
-            saveScore();
             document.getElementById('modal-overlay').style.display = 'flex';
             document.getElementById('modal-body').innerHTML = `
                 <button class="modal-action-btn" style="margin-top: 250px;" onclick="resetGame()">RESTART</button>
             `;
         }
+
 
         function showVictoryScreen() {
             audioDima.currentTime = 0; 

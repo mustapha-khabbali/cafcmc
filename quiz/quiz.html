@@ -385,7 +385,7 @@
     </style>
 </head>
 <body>
-<a href="../index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+<a href="javascript:void(0)" onclick="goHome()" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
     <style>
         .home-btn {
             width: 80px;
@@ -599,6 +599,15 @@
             updateScoreUI();
             initGrid();
         }
+
+        function goHome() {
+    // Save the score if a game was in progress
+    if (playerName && score > 0) {
+        saveScore();
+    }
+    // Navigate to the home page
+    window.location.href = "../index.html";
+}
 
         function initGrid() {
             const board = document.getElementById('game-board');
